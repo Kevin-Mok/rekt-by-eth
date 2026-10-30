@@ -40,3 +40,6 @@ The defining check was intentionally run before evidence was populated and rejec
 The captured exact total is **96164252494628845 wei**, including **39629962723545907 wei** from **10 failed transactions**. Both a historical 2025 failure and the latest captured 2026 failure were independently checked with dRPC receipts; gasUsed, effectiveGasPrice and failed status match Blockscout. These are evidence expectations at the captured cutoff, not targets used to alter production data.
 
 The valid address `0x7f320d5f214bc330213da459f91b20b42d6a501e` returned `items: []` and terminal null for sent history. It supplies the empty-wallet negative case. Both successful explorer responses included CORS `*` and exposed rate-limit headers. Full projected source data, timestamps, headers, exact requests and sampled receipts are in `fixtures/sources/restart-small-wallet.json`; unrelated transaction input/log fields are omitted. Later live activity may change results, so compare fixture totals at their recorded cutoff.
+
+## Correction (2026-10-30)
+The samples above matched on the sampled transactions, but a later full-wallet check found Blockscout rows with `gas_used` 0, max-fee `gas_price` and `ok` status for reverted transactions. The page now reads gas and status only from receipts.

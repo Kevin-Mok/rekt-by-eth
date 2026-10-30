@@ -41,8 +41,9 @@
 'use strict';
 globalThis.Gas = (() => {
   const WEI = 10n ** 18n, PRICE_SCALE = 10n ** 8n, DAY = 86400000;
-  const SOURCE = 'coinbase-eth-usd-close', PRICE_KEY = 'wallet-gas-prices-v1', JOB_KEY = 'wallet-gas-job-v1';
+  const SOURCE = 'coinbase-eth-usd-close', PRICE_KEY = 'wallet-gas-prices-v1', JOB_KEY = 'wallet-gas-job-v2';
   const EXPLORER = 'https://eth.blockscout.com/api/v2';
+  const RPCS = ['https://eth.drpc.org','https://rpc.mevblocker.io','https://cloudflare-eth.com','https://eth.meowrpc.com'];
   const addressPattern = /^0x[0-9a-fA-F]{40}$/;
   const hashPattern = /^0x[0-9a-fA-F]{64}$/;
   function parseAddresses(text) {
@@ -219,6 +220,52 @@ globalThis.Gas = (() => {
     }
     return {get};
   }
+  // Gas is read ONLY from on-chain receipts. Blockscout can report gas_used 0 and its gas_price is not the effective price.
+  function hexUint(value, label) {
+    if (typeof value !== 'string' || !/^0x[0-9a-fA-F]{1,64}$/.test(value)) throw new Error(`Invalid receipt ${label}.`);
+    return BigInt(value);
+  }
+  function createReceiptReader(options={}) {
+    const fetcher=options.fetch || globalThis.fetch, rpcs=options.rpcs || RPCS, signal=options.signal, pause=options.sleep || sleep,
+      progress=options.onProgress || (()=>{}), cache=new Map();
+    let turn=0;
+    async function ask(url, hash) {
+      const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),20000);
+      const onAbort=()=>controller.abort(); signal?.addEventListener('abort',onAbort,{once:true});
+      try {
+        const response=await fetcher(url,{method:'POST',signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_getTransactionReceipt',params:[hash]})});
+        if(!response.ok) throw new Error(`HTTP ${response.status}`);
+        const body=await response.json();
+        if(body.error) throw new Error(body.error.message || 'RPC error');
+        const receipt=body.result;
+        if(!receipt) throw new Error('empty receipt');
+        if(String(receipt.transactionHash).toLowerCase()!==hash.toLowerCase()) throw new Error('receipt for another transaction');
+        if(receipt.status!=='0x1' && receipt.status!=='0x0') throw new Error('missing receipt status');
+        const gasUsed=hexUint(receipt.gasUsed,'gasUsed'), gasPrice=hexUint(receipt.effectiveGasPrice,'effectiveGasPrice');
+        if(gasUsed===0n) throw new Error('zero gasUsed');
+        return {gasUsed:gasUsed.toString(),gasPrice:gasPrice.toString(),status:receipt.status==='0x1'?'ok':'error'};
+      } finally {clearTimeout(timeout);signal?.removeEventListener('abort',onAbort);}
+    }
+    async function read(hash) {
+      if(!hashPattern.test(hash||'')) throw new Error('Invalid transaction hash.');
+      const key=hash.toLowerCase();
+      if(cache.has(key)) return cache.get(key);
+      let last;
+      for(let round=0;round<3;round++) {
+        for(let i=0;i<rpcs.length;i++) {
+          checkAbort(signal);
+          try { const value=await ask(rpcs[(turn+i)%rpcs.length],key); cache.set(key,value); return value; }
+          catch(error) { checkAbort(signal); last=error; }
+        }
+        progress('Receipt providers are busy; retrying. Progress is retained.');
+        await pause(700*(round+1),signal);
+      }
+      turn=(turn+1)%rpcs.length;
+      throw new Error(`Receipt for ${key.slice(0,10)}… unavailable on every provider (${last?.message}).`);
+    }
+    return {read};
+  }
   async function fetchWallet(address, options) {
     address=parseAddresses(address)[0];
     const {cutoff,asOf,request,onCheckpoint=()=>{},onProgress=()=>{},signal}=options;
@@ -240,9 +287,28 @@ globalThis.Gas = (() => {
       const next=validateCursor(page.next_page_params);
       // Commit the entire validated page atomically; a malformed row cannot advance its cursor.
       const additions=[];
+      const candidates=[];
       for(const tx of page.items) {
         if(tx.block_number===null && (tx.status===null || tx.status==='pending')) continue;
-        const row=normalizeTransaction(tx,address);
+        candidates.push(tx);
+      }
+      // With a receipt reader, fee fields come from on-chain receipts (a few at a time, order preserved).
+      const sources=new Array(candidates.length);
+      let nextIndex=0;
+      const worker=async()=>{
+        while(nextIndex<candidates.length) {
+          const index=nextIndex++, tx=candidates[index];
+          const sender=typeof tx.from==='string'?tx.from:tx.from?.hash;
+          if(!options.receipt || String(sender||'').toLowerCase()!==address || !(Number(tx.block_number)<=cutoff)) {sources[index]=tx;continue;}
+          const receipt=await options.receipt(tx.hash);
+          checkAbort(signal);
+          // The on-chain receipt status is authoritative: Blockscout can show 'ok' for a reverted transaction.
+          sources[index]={...tx,status:receipt.status,gas_used:receipt.gasUsed,gas_price:receipt.gasPrice};
+        }
+      };
+      await Promise.all(Array.from({length:Math.min(options.receipt?4:1,candidates.length)},worker));
+      for(const source of sources) {
+        const row=normalizeTransaction(source,address);
         if(row && row.block<=cutoff) additions.push(row);
       }
       for(const row of additions) {
@@ -377,7 +443,7 @@ globalThis.Gas = (() => {
     return columns.join(',')+'\r\n'+records.map(record=>columns.map(column=>csvCell(record[column])).join(',')).join('\r\n')+'\r\n';
   }
   return {WEI,PRICE_SCALE,SOURCE,PRICE_KEY,JOB_KEY,EXPLORER,parseAddresses,normalizeTransaction,formatEth,formatUsd,priceToUnits,
-    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,fetchWallet,loadPrices,checkAbort,csvCell,monthlyTotals,exportCsv};
+    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,createReceiptReader,fetchWallet,loadPrices,checkAbort,csvCell,monthlyTotals,exportCsv};
 })();
 </script>
 <script id="gas-ui">
@@ -458,7 +524,7 @@ globalThis.Gas = (() => {
     catch(error){$('results').hidden=true;formError(error.message);$('wallets').focus();return;}
     if(controller)return;
     controller=new AbortController();setBusy(true);const signal=controller.signal;
-    const client=G.createClient({signal,onProgress:progress});
+    const client=G.createClient({signal,onProgress:progress}),receipts=G.createReceiptReader({signal,onProgress:progress});
     const issues=[];let prices=new Map(),activeSnapshot=resume;
     if(!resume)$('results').hidden=true;
     try{
@@ -473,7 +539,7 @@ globalThis.Gas = (() => {
         const address=job.addresses[index];G.checkAbort(signal);
         progress(`Wallet ${index+1}/${job.addresses.length}: reading sent transaction history…`);
         try{
-          await G.fetchWallet(address,{cutoff:job.cutoff,asOf:job.asOf,checkpoint:job.wallets[address],signal,request:client.get,
+          await G.fetchWallet(address,{cutoff:job.cutoff,asOf:job.asOf,checkpoint:job.wallets[address],signal,request:client.get,receipt:receipts.read,
             onCheckpoint:cp=>{job.wallets[address]=cp;persist();},
             onProgress:status=>{progress(`Wallet ${index+1}/${job.addresses.length}: ${status.count.toLocaleString('en-US')} sent transactions · ${status.pageCount} pages${status.complete?' · history complete':''}.`);render();}});
         }catch(error){if(signal.aborted)throw error;issues.push(`${address.slice(0,8)}…${address.slice(-6)}: ${error.message}`);}
