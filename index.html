@@ -100,6 +100,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 globalThis.Gas = (() => {
   const WEI = 10n ** 18n, PRICE_SCALE = 10n ** 8n, DAY = 86400000;
   const SOURCE = 'coinbase-eth-usd-close', PRICE_KEY = 'wallet-gas-prices-v1', JOB_KEY = 'wallet-gas-job-v2';
+  const RECEIPT_CONCURRENCY = 8;
   const RPC_PROVIDERS = ['https://eth.drpc.org','https://ethereum-rpc.publicnode.com','https://eth.llamarpc.com'];
   const EXPLORER = 'https://eth.blockscout.com/api/v2';
   const addressPattern = /^0x[0-9a-fA-F]{40}$/;
@@ -291,31 +292,63 @@ globalThis.Gas = (() => {
     }
     return {get:url=>send(url),post:(url,payload)=>send(url,payload)};
   }
+  // Receipt verification: one eth_getTransactionReceipt per POST, a shared pool of at most `concurrency` requests,
+  // per-endpoint health (failure count + cooldown with backoff) so a rate-limited RPC is skipped, and a per-session hash cache.
   function createReceiptClient(options={}) {
-    const client=createClient({...options,attempts:2,timeout:12000}),chains=new Map(),receipts=new Map();
-    let preferred=0;
-    async function call(source,method,params) {
-      const body=await client.post(source,{jsonrpc:'2.0',id:1,method,params});
-      if(!body||body.error||!Object.hasOwn(body,'result'))throw new Error('RPC did not return a usable '+method+' result.');
-      return body.result;
+    const fetcher=options.fetch||globalThis.fetch,pause=options.sleep||sleep,now=options.now||Date.now,signal=options.signal,
+      providers=options.providers||RPC_PROVIDERS,concurrency=Math.max(1,options.concurrency??RECEIPT_CONCURRENCY),rounds=options.rounds??3,
+      timeoutMs=options.timeout??12000,chains=new Map(),receipts=options.cache||new Map();
+    const health=new Map(providers.map((url,index)=>[url,{index,failures:0,cooldownUntil:0}]));
+    let active=0;const waiting=[];
+    async function slot(){checkAbort(signal);if(active<concurrency){active++;return;}await new Promise(resolve=>waiting.push(resolve));if(signal?.aborted){release();checkAbort(signal);}}
+    function release(){const next=waiting.shift();if(next)next();else active--;}
+    class Transient extends Error{constructor(message,retryAfter=0){super(message);this.retryAfter=retryAfter;}}
+    async function post(url,method,params){
+      await slot();
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs),onAbort=()=>controller.abort();
+      signal?.addEventListener('abort',onAbort,{once:true});
+      try{
+        let response;
+        try{response=await fetcher(url,{method:'POST',signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',
+          headers:{Accept:'application/json','Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});}
+        catch(error){checkAbort(signal);throw new Transient(error.name==='AbortError'?'timed out':'network error');}
+        if(response.status===429||response.status>=500){const after=Number(response.headers?.get?.('retry-after'));throw new Transient(`HTTP ${response.status}`,Number.isFinite(after)&&after>0?Math.min(after,60)*1000:0);}
+        if(!response.ok)throw new Error(`HTTP ${response.status}`);
+        let body;try{body=await response.json();}catch{throw new Transient('unreadable response');}
+        if(body?.error&&[-32005,-32016,429].includes(body.error.code))throw new Transient('rate limited');
+        if(!body||body.error||!Object.hasOwn(body,'result'))throw new Error('RPC did not return a usable '+method+' result.');
+        return body.result;
+      }finally{clearTimeout(timer);signal?.removeEventListener('abort',onAbort);release();}
     }
-    async function lookup(tx) {
-      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],startIndex=preferred;
-      for(let offset=0;offset<RPC_PROVIDERS.length;offset++) {
-        checkAbort(options.signal);const index=(startIndex+offset)%RPC_PROVIDERS.length,source=RPC_PROVIDERS[index];
-        try {
-          if(!chains.has(source))chains.set(source,call(source,'eth_chainId',[]).then(chain=>{if(chain!=='0x1')throw new Error('RPC is not Ethereum mainnet.');return true;}));
-          await chains.get(source);
-          const verification={chainId:1,source,receipt:await call(source,'eth_getTransactionReceipt',[tx.hash])};
-          normalizeTransaction(tx,sender,verification);preferred=index;return verification;
-        }catch(error){checkAbort(options.signal);errors.push(new URL(source).hostname+': '+error.message);options.onProgress?.('Receipt source fallback: '+new URL(source).hostname+' could not verify this transaction.');}
+    function penalize(url,error){const h=health.get(url);h.failures++;h.cooldownUntil=now()+Math.max(error.retryAfter||0,Math.min(30000,500*2**Math.min(h.failures,6)));}
+    function reward(url){const h=health.get(url);h.failures=Math.max(0,h.failures-1);}
+    function order(){const t=now();return [...health.entries()].sort(([,a],[,b])=>(a.cooldownUntil>t)-(b.cooldownUntil>t)||a.failures-b.failures||a.index-b.index).map(([url])=>url);}
+    async function lookup(tx){
+      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],done=new Set();
+      for(let round=0;round<rounds;round++){
+        let transient=false;
+        for(const source of order()){
+          if(done.has(source))continue;checkAbort(signal);
+          const h=health.get(source),wait=h.cooldownUntil-now();
+          if(wait>0){if(round<rounds-1&&order().some(url=>!done.has(url)&&health.get(url).cooldownUntil<=now()&&url!==source)){transient=true;continue;}await pause(Math.min(wait,30000),signal);}
+          try{
+            if(!chains.has(source))chains.set(source,post(source,'eth_chainId',[]).then(chain=>{if(chain!=='0x1')throw new Error('RPC is not Ethereum mainnet.');return true;}).catch(error=>{chains.delete(source);throw error;}));
+            await chains.get(source);
+            const verification={chainId:1,source,receipt:await post(source,'eth_getTransactionReceipt',[tx.hash])};
+            normalizeTransaction(tx,sender,verification);reward(source);return verification;
+          }catch(error){
+            checkAbort(signal);errors.push(new URL(source).hostname+': '+error.message);
+            if(error instanceof Transient){transient=true;penalize(source,error);}else done.add(source);
+          }
+        }
+        if(!transient||done.size===providers.length)break;
       }
       throw new Error('Receipt unverified after all public RPCs: '+errors.join(' '));
     }
-    return {getReceipt(tx) {
+    return {getReceipt(tx){
       if(!receipts.has(tx.hash))receipts.set(tx.hash,lookup(tx).catch(error=>{receipts.delete(tx.hash);throw error;}));
       return receipts.get(tx.hash);
-    }};
+    },health:()=>[...health].map(([url,h])=>({url,...h})),cache:receipts};
   }
   async function fetchWallet(address,options) {
     address=parseAddresses(address)[0];
@@ -335,11 +368,11 @@ globalThis.Gas = (() => {
             const verification=await getReceipt(tx),row=normalizeTransaction(tx,address,verification);
             rows.set(row.hash,row);unresolved.delete(row.hash);
           }catch(error){checkAbort(signal);unresolved.set(tx.hash,{...tx,reason:String(error.message).slice(0,1500)});}
-          done++;if(done%5===0)save();
+          done++;if(done%25===0)save();
           onProgress({address,count:rows.size+unresolved.size,verified:rows.size,unverified:unresolved.size,pageCount,complete,stage:'receipts',receiptDone:done,receiptTotal:pending.length});
         }
       }
-      try{await Promise.all(Array.from({length:Math.min(2,pending.length)},()=>worker()));}finally{save();}
+      try{await Promise.all(Array.from({length:Math.min(options.receiptConcurrency??RECEIPT_CONCURRENCY,pending.length)},()=>worker()));}finally{save();}
     }
     if(unresolved.size)await resolvePending();
     while(!complete){
@@ -492,6 +525,7 @@ globalThis.Gas = (() => {
 'use strict';
 (() => {
   const $=id=>document.getElementById(id),G=globalThis.Gas;
+  const receiptCache=new Map();
   let job=null,controller=null,heartbeat=null,started=0,storage=null,storageWarned=false;
   try {storage=localStorage;}catch{storageWarning();}
   function text(id,value){$(id).textContent=value;}
@@ -576,7 +610,7 @@ globalThis.Gas = (() => {
     catch(error){$('results').hidden=true;formError(error.message);$('wallets').focus();return;}
     if(controller)return;
     controller=new AbortController();setBusy(true);const signal=controller.signal;
-    const client=G.createClient({signal,onProgress:progress}),receiptClient=G.createReceiptClient({signal,onProgress:progress});
+    const client=G.createClient({signal,onProgress:progress}),receiptClient=G.createReceiptClient({signal,onProgress:progress,cache:receiptCache});
     const issues=[];let prices=new Map(),activeSnapshot=resume;
     if(!resume)$('results').hidden=true;
     try{
@@ -593,7 +627,7 @@ globalThis.Gas = (() => {
         try{
           await G.fetchWallet(address,{cutoff:job.cutoff,asOf:job.asOf,checkpoint:job.wallets[address],signal,request:client.get,getReceipt:receiptClient.getReceipt,
             onCheckpoint:cp=>{job.wallets[address]=cp;persist();},
-            onProgress:status=>{progress(`Wallet ${index+1}/${job.addresses.length}: ${status.count.toLocaleString('en-US')} sent · ${status.verified} receipts verified · ${status.pageCount} pages${status.complete?' · history enumerated':''}.`);render();}});
+            onProgress:status=>{progress(`${job.addresses.length>1?`Wallet ${index+1}/${job.addresses.length}: `:''}Verified ${status.verified.toLocaleString('en-US')}/${status.count.toLocaleString('en-US')} receipts${status.complete?'':'…'}`);render();}});
         }catch(error){if(signal.aborted)throw error;issues.push(`${address.slice(0,8)}…${address.slice(-6)}: ${error.message}`);}
       }
       const rows=observedRows();
