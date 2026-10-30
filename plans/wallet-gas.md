@@ -44,3 +44,12 @@ Stage 2 milestone (`feat: calculate exact wallet gas and historical USD`):20prod
 Stage3 milestone (`feat: add minimalist wallet gas landing page`):21Node/server checks;8controlled browser groups including review regressions; actual Blockscout/Coinbase/dRPC CORS, live failed+empty and deliberately cancelled2-pageVitalik. Keyboard320px and desktop1440px containment checked. npmdev occupied4317 selected4318 without stopping listener. Required design skills and critique/polish applied; reviewer correction4verified/0incorrect. Private helper publication gate still blocks push. Next:Stage4CSV/monthlychart; other browsers/devices/screenreader unverified.
 
 Stage4 milestone (`feat: export reconciled gas data and monthly chart`):27Node tests pass, including10001CSVrows; independentPython CSV/Decimal and actualbrowser-downloaded40-record combined fixture reconcile exactwei/ETH/cents/failed/monthly (34transactionrows,28missing). Browser9groups pass. Focused review7verified/0incorrect; optionalaxis-tick refinement deferred (table/tooltips exact). Publication remains local: automaticapproval rejected rebase, directasyncapproval pending; no bypass. Next: finalaudit/freshchecks/hand-off.
+
+## Future ideas (not tonight's scope)
+- Gas leaderboard with shortened addresses (`0x1234…abcd`). A wallet is listed only after its owner connects MetaMask or Rabby and proves ownership.
+  - Proof of ownership: a sign-in-with-Ethereum style message with a nonce. It costs no gas and sends no transaction; the server checks the recovered address. Never ask for a transaction or token approval.
+  - Needs a small backend (a Vercel function plus a small database) to store entries and verify signatures, which ends the "static page, nothing stored" design, so it is a deliberate separate stage.
+  - Privacy: opt-in only, with a way to leave the board or show a label instead of the address.
+  - Integrity: the board uses the same receipts-only totals as the main page, recomputed on the server, never numbers sent by the browser.
+  - Open question: rank by total ETH, by USD, or by failed-transaction gas.
+- Other currencies via daily FX rates; ENS name input.
