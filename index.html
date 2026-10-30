@@ -12,7 +12,7 @@
 [data-theme=light]{color-scheme:light;--bg:#f5f6fa;--surface:#fff;--surface-2:#eef0f5;--border:#e1e4ec;--field:#8b91a8;--text:#0d111c;--muted:#5e6275;--accent:#d6006a;--accent-hover:#c00060;--accent-text:#fff;--danger:#c4252b;--danger-bg:#fdeeee;--bar:#7c8399;--grid:#e1e4ec}
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font:16px/1.5 "Inter WG",ui-sans-serif,system-ui,"Segoe UI Variable","SF Pro Display",Inter,Roboto,sans-serif;font-feature-settings:"calt";-webkit-font-smoothing:antialiased}
-a{color:inherit;text-underline-offset:3px}button,textarea{font:inherit}[hidden]{display:none!important}
+a{color:inherit;text-underline-offset:3px}button,textarea{font:inherit}[hidden]{display:none!important}#quality{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .wrap{max-width:640px;margin:0 auto;padding:0 20px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;height:64px}
@@ -82,7 +82,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <noscript><p class="flag">This page needs JavaScript to read public transaction history.</p></noscript>
 <section id="results" class="results" aria-labelledby="results-title" hidden>
 <h2 id="results-title" class="sr-only" tabindex="-1">Gas spent</h2>
-<p id="quality" class="flag" role="status" hidden></p>
+<div id="quality" class="flag" hidden><span id="quality-text" role="status"></span></div>
 <p id="hero-line" style="margin:16px 0 0"><span class="hero"><span id="total-eth">0</span> <span class="unit">ETH</span></span><small id="eth-label" hidden></small><span class="usd"><span id="total-usd">$0.00</span> <small id="usd-label" hidden></small></span></p>
 <p id="count-row" class="count"><span id="count-line"></span><span id="failed-line" class="failed"></span></p>
 <div class="more">
@@ -554,7 +554,8 @@ globalThis.Gas = (() => {
     }catch(error){text('storage-note','Saved snapshot could not be validated. Calculate a fresh snapshot or clear local data.');$('storage-note').hidden=false;}
   }
   function showResume(){
-    const unfinished=!!job&&(job.addresses.some(a=>!job.wallets[a]?.complete)||unverifiedRows().length>0);$('resume-row').hidden=!unfinished;
+    const unfinished=!!job&&(job.addresses.some(a=>!job.wallets[a]?.complete)||unverifiedRows().length>0),inline=unfinished&&!$('results').hidden&&!$('quality').hidden;
+    (inline?$('quality'):$('resume-row')).append($('resume'));$('resume-row').hidden=!unfinished||inline;
     if(unfinished)text('resume-description',`Unfinished run from ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,16)} UTC`);
   }
   // Stall watchdog: no progress for STALL_MS aborts in-flight requests; the run ends resumable.
@@ -566,7 +567,7 @@ globalThis.Gas = (() => {
   function setBusy(busy){
     $('calculate').disabled=busy;$('resume').disabled=busy;$('clear-data').disabled=busy;$('wallets').readOnly=busy;
     $('progress-area').hidden=!busy;$('wallet-form').setAttribute('aria-busy',String(busy));
-    if(busy){started=Date.now();text('elapsed','Elapsed 0s');lastProgressAt=started;stalled=false;heartbeat=setInterval(()=>{text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`);if(controller&&!stalled&&(Date.now()-lastProgressAt>STALL_MS||Date.now()-started>MAX_RUN_MS)){stallReason=Date.now()-started>MAX_RUN_MS?'Taking too long — tap Resume to continue.':'Stalled — tap Resume to continue.';stalled=true;controller.abort();}},1000);}
+    if(busy){started=Date.now();text('elapsed','Elapsed 0s');lastProgressAt=started;stalled=false;heartbeat=setInterval(()=>{text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`);if(controller&&!stalled&&(Date.now()-lastProgressAt>STALL_MS||Date.now()-started>MAX_RUN_MS)){stallReason=Date.now()-started>MAX_RUN_MS?'Taking too long. Progress is saved.':'Stalled. Progress is saved.';stalled=true;controller.abort();}},1000);}
     else{clearInterval(heartbeat);heartbeat=null;showResume();}
   }
   function formError(message){text('form-error',message);$('form-error').hidden=!message;$('wallets').setAttribute('aria-invalid',message?'true':'false');}
@@ -602,14 +603,14 @@ globalThis.Gas = (() => {
     const unverifiedList=$('unverified-transactions');unverifiedList.replaceChildren();
     for(const tx of unresolved){const li=document.createElement('li'),link=node('a',tx.hash);link.href=`https://eth.blockscout.com/tx/${tx.hash}`;link.target='_blank';link.rel='noreferrer';li.title=tx.reason;li.append(link,node('small',' · '+plainReason(tx.reason)));li.style.overflowWrap='anywhere';unverifiedList.append(li);}
     const notes=[...issues];
-    const hint=issues.some(issue=>/Resume/.test(issue))?'':' Tap Resume to retry.';
+    const hint='';
     // While a run is busy the progress line says what is happening; notes appear once it settles.
     if(settled&&!receiptsComplete)notes.push(`${unresolved.length} fee${unresolved.length===1?'':'s'} couldn’t be verified and ${unresolved.length===1?'is':'are'} left out of the totals.${historiesComplete?hint:''}`);
     if(settled&&!historiesComplete)notes.push(`Partial history: some transactions are missing.${hint}`);
     if(total.missingCount)notes.push(`No price for ${total.missingCount} transaction${total.missingCount===1?'':'s'} on ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}: counted in ETH, left out of USD.`);
     
     text('missing-days',total.missingDays.join(', '));$('missing-details').hidden=!total.missingDays.length;
-    text('quality',notes[0]||'');$('quality').hidden=!notes.length;text('notes-detail',notes.slice(1).join(' '));$('notes-detail').hidden=notes.length<2;
+    text('quality-text',notes[0]||'');$('quality').hidden=!notes.length;text('notes-detail',notes.slice(1).join(' '));$('notes-detail').hidden=notes.length<2;
     $('breakdown').hidden=job.addresses.length<2;$('monthly').hidden=!rows.length;
     const body=$('wallet-rows');body.replaceChildren();
     for(const address of job.addresses){
@@ -653,7 +654,7 @@ globalThis.Gas = (() => {
       prices=await G.loadPrices(rows.map(row=>row.day),{request:client.get,storage,signal,onProgress:progress});
       redraw.cancel();render(prices,issues,true);$('results-title').focus({preventScroll:true});
     }catch(error){
-      if(activeSnapshot&&job){redraw.cancel();issues.push(stalled?stallReason:signal.aborted?'Cancelled. Tap Resume to continue.':plainError(error.message));render(prices,issues,true);}
+      if(activeSnapshot&&job){redraw.cancel();issues.push(stalled?stallReason:signal.aborted?'Cancelled. Progress is saved.':plainError(error.message));render(prices,issues,true);}
       else formError(stalled?'Stalled. Try again.':plainError(error.message));
     }finally{controller=null;setBusy(false);persist();}
   }
