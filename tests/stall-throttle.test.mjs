@@ -89,3 +89,19 @@ test('intermittent 429 on the only working RPC keeps throughput: success clears 
   assert.ok(out.filter(r=>r.status==='fulfilled').length>=36,'most receipts verify');
   assert.ok(slept<=120_000,`simulated waiting ${slept}ms stays bounded`);
 });
+
+test('HTTP 408 from an RPC is retryable, not a permanent failure for that receipt',async()=>{
+  let clock=0,n=0;const client=G.createReceiptClient({providers:['https://eth.drpc.org'],now:()=>clock,sleep:async ms=>{clock+=ms;},fetch:async(url,options)=>{
+    const body=JSON.parse(options.body);if(body.method==='eth_getTransactionReceipt'&&n++===0)return status(408);
+    return ok(body.method==='eth_chainId'?'0x1':receiptOf(body.params[0]));}});
+  const v=await client.getReceipt(raw(1));assert.equal(v.source,'https://eth.drpc.org');
+});
+
+test('a receipt whose only working RPC is out never waits minutes on dead fallbacks (per-lookup wait budget)',async()=>{
+  let clock=0,slept=0;const providers=['https://eth.drpc.org','https://a.example','https://b.example'];
+  const client=G.createReceiptClient({providers,now:()=>clock,sleep:async ms=>{clock+=ms;slept+=ms;},fetch:async(url,options)=>{
+    const body=JSON.parse(options.body);if(url!==providers[0])throw new TypeError('fetch failed');
+    return body.method==='eth_chainId'?ok('0x1'):status(404);}}); // permanent on drpc, dead elsewhere
+  await assert.rejects(client.getReceipt(raw(1)),/unverified/);
+  assert.ok(slept<=60_000,`waited ${slept}ms`);
+});

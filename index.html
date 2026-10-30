@@ -311,7 +311,7 @@ globalThis.Gas = (() => {
       timeoutMs=options.timeout??12000,chains=new Map(),receipts=options.cache||new Map();
     const health=new Map(providers.map((url,index)=>[url,{index,failures:0,cooldownUntil:0}]));
     // Circuit breaker: once every endpoint has failed BREAKER times and is cooling down, remaining receipts end unverified at once.
-    const BREAKER=options.breaker??8;
+    const BREAKER=options.breaker??8,waitBudget=options.waitBudget??30000; // per-lookup cap on cooldown waiting; leftovers end unverified (resumable)
     let active=0;const waiting=[];
     async function slot(){checkAbort(signal);if(active<concurrency){active++;return;}await new Promise(resolve=>waiting.push(resolve));if(signal?.aborted){release();checkAbort(signal);}}
     function release(){const next=waiting.shift();if(next)next();else active--;}
@@ -325,7 +325,7 @@ globalThis.Gas = (() => {
         try{response=await fetcher(url,{method:'POST',signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',
           headers:{Accept:'application/json','Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});}
         catch(error){checkAbort(signal);throw new Transient(error.name==='AbortError'?'timed out':'network error');}
-        if(response.status===429||response.status>=500){const after=Number(response.headers?.get?.('retry-after'));throw new Transient(`HTTP ${response.status}`,Number.isFinite(after)&&after>0?Math.min(after,60)*1000:0);}
+        if(response.status===429||response.status===408||response.status===425||response.status>=500){const after=Number(response.headers?.get?.('retry-after'));throw new Transient(`HTTP ${response.status}`,Number.isFinite(after)&&after>0?Math.min(after,60)*1000:0);}
         if(!response.ok)throw new Error(`HTTP ${response.status}`);
         let body;try{body=await response.json();}catch{throw new Transient('unreadable response');}
         if(body?.error&&[-32005,-32016,429].includes(body.error.code))throw new Transient('rate limited');
@@ -337,12 +337,13 @@ globalThis.Gas = (() => {
     function reward(url){const h=health.get(url);h.failures=0;h.cooldownUntil=0;}
     function order(){const t=now();return [...health.entries()].sort(([,a],[,b])=>(a.cooldownUntil>t)-(b.cooldownUntil>t)||a.failures-b.failures||a.index-b.index).map(([url])=>url);}
     async function lookup(tx){
-      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],done=new Set(),fail=()=>{throw new Error('Receipt unverified after all public RPCs: '+errors.join(' '));};
+      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],done=new Set(),deadline=now()+waitBudget,fail=()=>{throw new Error('Receipt unverified after all public RPCs: '+errors.join(' '));};
       // Attempt-driven: always try the endpoint that is ready soonest, so one dead fallback's long cooldown never blocks a recovering one.
       for(let attempt=0;attempt<rounds*providers.length;attempt++){
         checkAbort(signal);const live=order().filter(url=>!done.has(url));if(!live.length)break;
         const source=live.reduce((a,b)=>health.get(b).cooldownUntil<health.get(a).cooldownUntil?b:a),wait=health.get(source).cooldownUntil-now();
         if(wait>0){if([...health.values()].every(x=>x.failures>=BREAKER&&x.cooldownUntil>now())){errors.push('all public RPCs are rate-limited or failing');break;}
+          if(now()+Math.min(wait,30000)>deadline){errors.push('gave up waiting for a ready RPC');break;}
           await pause(Math.min(wait,30000),signal);}
         try{
           if(!chains.has(source))chains.set(source,post(source,'eth_chainId',[]).then(chain=>{if(chain!=='0x1')throw new Error('RPC is not Ethereum mainnet.');return true;}).catch(error=>{chains.delete(source);throw error;}));
@@ -558,7 +559,7 @@ globalThis.Gas = (() => {
     if(unfinished)text('resume-description',`Unfinished run from ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,16)} UTC`);
   }
   // Stall watchdog: no progress for STALL_MS aborts in-flight requests; the run ends resumable.
-  const STALL_MS=globalThis.WG_STALL_MS||45000;
+  const STALL_MS=globalThis.WG_STALL_MS||45000,MAX_RUN_MS=globalThis.WG_MAX_RUN_MS||600000;let stallReason='';
   // Network failures read as one plain sentence; other messages already say what to do.
   function plainError(message){return /Failed to fetch|NetworkError|Load failed|Source unavailable|Retry budget|timed out/i.test(message)?'Couldn’t reach the data sources. Check your connection, then tap Resume.':message;}
   function plainReason(reason){return /429|rate-limit/i.test(reason)?'rate-limited':/Awaiting/.test(reason)?'checking':'couldn’t verify';}
@@ -566,7 +567,7 @@ globalThis.Gas = (() => {
   function setBusy(busy){
     $('calculate').disabled=busy;$('resume').disabled=busy;$('clear-data').disabled=busy;$('wallets').readOnly=busy;
     $('progress-area').hidden=!busy;$('wallet-form').setAttribute('aria-busy',String(busy));
-    if(busy){started=Date.now();text('elapsed','Elapsed 0s');lastProgressAt=started;stalled=false;heartbeat=setInterval(()=>{text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`);if(controller&&!stalled&&Date.now()-lastProgressAt>STALL_MS){stalled=true;controller.abort();}},1000);}
+    if(busy){started=Date.now();text('elapsed','Elapsed 0s');lastProgressAt=started;stalled=false;heartbeat=setInterval(()=>{text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`);if(controller&&!stalled&&(Date.now()-lastProgressAt>STALL_MS||Date.now()-started>MAX_RUN_MS)){stallReason=Date.now()-started>MAX_RUN_MS?'Taking too long — tap Resume to continue.':'Stalled — tap Resume to continue.';stalled=true;controller.abort();}},1000);}
     else{clearInterval(heartbeat);heartbeat=null;showResume();}
   }
   function formError(message){text('form-error',message);$('form-error').hidden=!message;$('wallets').setAttribute('aria-invalid',message?'true':'false');}
@@ -652,7 +653,7 @@ globalThis.Gas = (() => {
       prices=await G.loadPrices(rows.map(row=>row.day),{request:client.get,storage,signal,onProgress:progress});
       redraw.cancel();render(prices,issues,true);$('results-title').focus({preventScroll:true});
     }catch(error){
-      if(activeSnapshot&&job){redraw.cancel();issues.push(stalled?'Stalled — tap Resume to continue.':signal.aborted?'Cancelled. Tap Resume to continue.':plainError(error.message));render(prices,issues,true);}
+      if(activeSnapshot&&job){redraw.cancel();issues.push(stalled?stallReason:signal.aborted?'Cancelled. Tap Resume to continue.':plainError(error.message));render(prices,issues,true);}
       else formError(stalled?'Stalled. Try again.':plainError(error.message));
     }finally{controller=null;setBusy(false);persist();}
   }
