@@ -89,7 +89,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
 <section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-note" class="note"></p>
 <details class="plain"><summary>Monthly values</summary><div class="table-wrap"><table><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">USD</th><th scope="col">Failed USD</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
-<div id="details-row" class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="failed-detail" hidden></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
+<div id="details-row" class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="notes-detail" hidden></p><p id="exact-wei"></p><p id="failed-detail" hidden></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
 </div>
 </section>
 </main>
@@ -601,16 +601,15 @@ globalThis.Gas = (() => {
     $('receipt-details').hidden=receiptsComplete;text('receipt-summary',`${unresolved.length} unverified transaction${unresolved.length===1?'':'s'}`);
     const unverifiedList=$('unverified-transactions');unverifiedList.replaceChildren();
     for(const tx of unresolved){const li=document.createElement('li'),link=node('a',tx.hash);link.href=`https://eth.blockscout.com/tx/${tx.hash}`;link.target='_blank';link.rel='noreferrer';li.title=tx.reason;li.append(link,node('small',' · '+plainReason(tx.reason)));li.style.overflowWrap='anywhere';unverifiedList.append(li);}
-    const notes=[];
+    const notes=[...issues];
     const hint=issues.some(issue=>/Resume/.test(issue))?'':' Tap Resume to retry.';
     // While a run is busy the progress line says what is happening; notes appear once it settles.
     if(settled&&!receiptsComplete)notes.push(`${unresolved.length} fee${unresolved.length===1?'':'s'} couldn’t be verified and ${unresolved.length===1?'is':'are'} left out of the totals.${historiesComplete?hint:''}`);
     if(settled&&!historiesComplete)notes.push(`Partial history: some transactions are missing.${hint}`);
     if(total.missingCount)notes.push(`No price for ${total.missingCount} transaction${total.missingCount===1?'':'s'} on ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}: counted in ETH, left out of USD.`);
     
-    if(issues.length)notes.push(...issues);
     text('missing-days',total.missingDays.join(', '));$('missing-details').hidden=!total.missingDays.length;
-    text('quality',notes.join(' '));$('quality').hidden=!notes.length;
+    text('quality',notes[0]||'');$('quality').hidden=!notes.length;text('notes-detail',notes.slice(1).join(' '));$('notes-detail').hidden=notes.length<2;
     $('breakdown').hidden=job.addresses.length<2;$('monthly').hidden=!rows.length;
     const body=$('wallet-rows');body.replaceChildren();
     for(const address of job.addresses){
