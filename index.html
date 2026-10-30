@@ -590,7 +590,7 @@ globalThis.Gas = (() => {
     text('exact-wei',`Exact: ${eth} ETH (${total.wei.toLocaleString('en-US')} wei)`);
     text('eth-label',receiptsComplete?'':'verified subtotal');$('eth-label').hidden=receiptsComplete;const usdPartial=!fiatComplete||!receiptsComplete;text('usd-label',usdPartial?'priced subtotal':'');$('usd-label').hidden=!usdPartial;
     text('count-line',unresolved.length?`${total.count.toLocaleString('en-US')} of ${(total.count+unresolved.length).toLocaleString('en-US')} transactions verified`:total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?`No sent transactions for ${job.addresses.length>1?'these wallets':'this wallet'}`:'0 transactions so far'));
-    const empty=historiesComplete&&receiptsComplete&&!total.count;$('hero-line').hidden=empty;$('details-row').hidden=empty;
+    const empty=historiesComplete&&receiptsComplete&&!total.count;const blank=!total.count&&(!historiesComplete||unresolved.length>0);$('hero-line').hidden=empty||blank;$('count-row').hidden=blank;$('details-row').hidden=empty;
     text('total-usd',G.formatUsd(total.usdCents));
     text('usd-detail',total.missingCount?`${total.missingCount} unpriced transactions across ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}`:
       total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD at each UTC day’s close');
