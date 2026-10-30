@@ -52,7 +52,7 @@ Required design order applied: minimalist-ui → frontend-design → design-tast
 | Receipt authority | 4bd685b | Actual receipts for every fee; source-refresh integrity; full regression suite |
 | Final handoff | docs: verify wallet gas site and delivery status | Current evidence, delivery gap and morning handoff |
 
-Fresh verification: **38 Node checks, 7 Python controls, 10 controlled browser groups**. All 34 captured public receipts independently match the fixture; CSV exact wei/ETH/cents, failed subset and monthly sums reconcile. Actual public live run at 04:11:09 UTC, block 26303091: 36 sent/10 failed, total 97880651001924672 wei, failed 39629962723545907 wei, zero unverified receipts, USD 256.95 with 30 provisional transactions. Mobile 390×844 had no page overflow; earlier 320px keyboard and 1440px desktop checks passed. All fixtures are below 3 MB. See [verification](../docs/verification.md), [sources](../docs/source-verification.md) and [smoke checks](../docs/smoke-tests.md).
+Fresh verification: **39 Node checks, 7 Python controls, 10 controlled browser groups**. All 34 captured public receipts independently match the fixture; CSV exact wei/ETH/cents, failed subset and monthly sums reconcile. Actual public live run at 04:11:09 UTC, block 26303091: 36 sent/10 failed, total 97880651001924672 wei, failed 39629962723545907 wei, zero unverified receipts, USD 256.95 with 30 provisional transactions. Mobile 390×844 had no page overflow; earlier 320px keyboard and 1440px desktop checks passed. All fixtures are below 3 MB. See [verification](../docs/verification.md), [sources](../docs/source-verification.md) and [smoke checks](../docs/smoke-tests.md).
 
 Independent final correction review: 7 verified, 0 incorrect, 1 unresolved (delivery). Content secret-pattern scan has zero matches; it is not exhaustive secret detection. The publication guard still flags three inherited private helper paths.
 
@@ -65,6 +65,8 @@ After trusted approval, back up private/local work, integrate the authorized cor
 ## Risks and review notes
 
 Public providers remain trusted dependencies; the page does not verify Merkle proofs or run a node. Index lag/reorgs, every fallback origin's availability and exhaustive independent high-volume history remain unverified. Non-Chromium engines, physical phones and a real screen reader were not tested. The privately relayed wallet anomaly was not queried and is not claimed fixed; generic counterexamples and public receipts are tested. Axis tick labels are an optional visual refinement; exact monthly values/tooltips exist. A fresh calculation or Clear local data safely abandons an old snapshot; future code rollback should use a new commit from a verified baseline, not history rewriting.
+
+Scope cleanup (`fix: retire obsolete price acceptance probes`): defining RED confirmed the legacy withdrawn-source command attempted a request; GREEN prevents all such requests and points to the USD helper. The dropped optional report template retains empty inputs but no numeric/currency acceptance targets. Historical failed-response evidence remains unchanged.
 
 ## Future ideas (not tonight's scope)
 - Gas leaderboard with shortened addresses (`0x1234…abcd`). A wallet is listed only after its owner connects MetaMask or Rabby and proves ownership.

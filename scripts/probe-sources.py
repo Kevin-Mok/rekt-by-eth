@@ -56,12 +56,9 @@ parser.add_argument('--plain',action='store_true',help='ASCII progress output')
 args=parser.parse_args()
 ICON = '[source]' if args.plain else '🔎'
 if args.scope == 'coingecko':
-    r=probe('coingecko-2015','https://api.coingecko.com/api/v3/coins/ethereum/history?date=08-08-2015&localization=false')
-    prices=r['response'].get('market_data',{}).get('current_price',{})
-    if r['http_status']!='200' or not all(isinstance(prices.get(c),(int,float)) and prices[c]>0 for c in ('usd','cad')):
-        print(f'{ICON} PRICE-01 attempt 2 FAILED: keyless historical USD/CAD quote unavailable. Stop implementation; retain evidence.',flush=True)
-        raise SystemExit(2)
-    print(f'{ICON} Sample quote received; full daily range and browser access remain UNVERIFIED.',flush=True)
+    warning = '[warning]' if args.plain else '⚠️'
+    print(f'{warning} This price probe is retired. No request was made. Use python3 scripts/verify-price-history.py for keyless USD history.', flush=True)
+    raise SystemExit(2)
 elif args.scope == 'paging':
     base=f'https://eth.blockscout.com/api/v2/addresses/{WALLET}/transactions'
     a=probe('blockscout-page1',base+'?filter=from')

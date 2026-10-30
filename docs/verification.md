@@ -4,7 +4,7 @@ This record separates reproducible captured-data checks from live browser observ
 
 ## Current implementation checks
 
-- **38 Node checks plus 7 Python controls:** exact wei/ETH/cents, failed subset, UTC pricing, cache corruption, 10,100-row pagination, 10,001-row CSV, cancellation, resume, nonce gaps, receipt-source fallback and identity checks, unknown-fee exclusion, same-page immutable duplicates and concurrent provider ordering.
+- **39 Node checks plus 7 Python controls:** exact wei/ETH/cents, failed subset, UTC pricing, cache corruption, 10,100-row pagination, 10,001-row CSV, cancellation, resume, nonce gaps, receipt-source fallback and identity checks, unknown-fee exclusion, same-page immutable duplicates and concurrent provider ordering.
 - **Ten controlled browser groups:** actual UI handlers with captured public transactions/receipts; multiple/deduplicated wallets, failures, empty wallet, missing prices, reload/resume, corruption recovery, cancellation, quota errors, CSV download/monthly chart, and all-RPC failure leaving a visible unverified hash. These controlled responses do not establish source uptime.
 - **Independent CSV parsing:** Python csv/Decimal and independent downloaded-file review matched every transaction to its actual saved receipt. Exact fee, ETH decimal, USD cents, failed subset and monthly sums reconcile. Unknown fee/USD cells remain blank.
 - **Atomic source refresh:** seven deliberate failure/atomicity controls demonstrate that failed or malformed historical-price refreshes exit nonzero and preserve the prior fixture. No live price refresh was needed to re-establish already valid historical evidence.
