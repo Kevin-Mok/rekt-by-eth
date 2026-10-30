@@ -1,0 +1,23 @@
+{
+  "source_url": "https://min-api.cryptocompare.com/data/v2/histoday?fsym=ETH&tsym=CAD&limit=2&toTs=1438992000",
+  "retrieved_at": "2026-10-30T02:05:33Z",
+  "origin": "http://127.0.0.1:4317",
+  "http_status": 401,
+  "curl_exit": 0,
+  "headers": {
+    "date": "Fri, 30 Oct 2026 02:05:33 GMT",
+    "content-type": "application/json"
+  },
+  "response": {
+    "Data": {},
+    "Err": {
+      "type": 2,
+      "message": "API key required, please refer to the documentation at https://developers.coindesk.com/",
+      "http_status_code": 401,
+      "frontend": {
+        "type": 2,
+        "message": "API key required, please refer to the documentation at https://developers.coindesk.com/"
+      }
+    }
+  }
+}

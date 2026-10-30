@@ -1,0 +1,12 @@
+{
+  "source_url": "https://ethereum-rpc.publicnode.com",
+  "retrieved_at": "2026-10-30T02:06:59.632513+00:00",
+  "origin": "http://127.0.0.1:4317",
+  "curl_exit": 35,
+  "http_status": "000",
+  "headers": {},
+  "response": {
+    "non_json_sample": ""
+  },
+  "diagnostic": "curl: (35) OpenSSL/3.0.13: error:0A00010B:SSL routines::wrong version number\n"
+}

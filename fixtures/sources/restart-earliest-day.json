@@ -1,0 +1,15 @@
+{
+  "source_url": "https://eth.blockscout.com/api?module=account&action=txlist&address=0xd8da6bf26964af9d7eed9e03e53415d37aa96045&sort=asc&page=1&offset=100",
+  "retrieved_at": "2026-10-30T02:30:59.905805+00:00",
+  "purpose": "earliest sent day only, NOT history enumeration or fee calculation",
+  "earliest_sent": {
+    "hash": "0x6ff0860e202c61189cb2a3a38286bffd694acbc50577df6cb5a7ff40e21ea074",
+    "blockNumber": "318528",
+    "from": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "nonce": "0",
+    "timeStamp": "1443722885"
+  },
+  "earliest_sent_utc": "2015-10-01T18:08:05+00:00",
+  "rows_scanned": 100,
+  "sent_in_ascending_sample": 94
+}

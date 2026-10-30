@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wallet gas — Ethereum mainnet</title></head>
+<body><main><h1>Wallet gas</h1><p>The calculation engine is ready for the interface stage.</p></main>
+<script id="gas-core">
+'use strict';
+globalThis.Gas = (() => {
+  const WEI = 10n ** 18n, PRICE_SCALE = 10n ** 8n, DAY = 86400000;
+  const SOURCE = 'coinbase-eth-usd-close', PRICE_KEY = 'wallet-gas-prices-v1', JOB_KEY = 'wallet-gas-job-v1';
+  const EXPLORER = 'https://eth.blockscout.com/api/v2';
+  const addressPattern = /^0x[0-9a-fA-F]{40}$/;
+  const hashPattern = /^0x[0-9a-fA-F]{64}$/;
+  function parseAddresses(text) {
+    const parts = String(text).trim().split(/[\s,;]+/).filter(Boolean);
+    if (!parts.length || parts.some(part => !addressPattern.test(part)))
+      throw new Error('Enter full 0x wallet addresses (40 hex digits). ENS names are not supported.');
+    return [...new Set(parts.map(part => part.toLowerCase()))];
+  }
+  function uint(value, label) {
+    if (typeof value === 'number' && !Number.isSafeInteger(value)) throw new Error(`Invalid ${label}.`);
+    if (!/^[0-9]{1,80}$/.test(String(value))) throw new Error(`Missing or invalid ${label}.`);
+    return BigInt(value);
+  }
+  function blockNumber(value) {
+    const block = uint(value, 'block number');
+    if (block > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('Invalid block number.');
+    return Number(block);
+  }
+  function validDay(day) {
+    return typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) &&
+      Number.isFinite(Date.parse(day)) && new Date(day).toISOString().slice(0,10) === day;
+  }
+  function normalizeTransaction(tx, address) {
+    const sender = typeof tx.from === 'string' ? tx.from : tx.from?.hash;
+    if (!addressPattern.test(sender || '')) throw new Error('Invalid transaction sender.');
+    if (sender.toLowerCase() !== address.toLowerCase()) return null;
+    if (!hashPattern.test(tx.hash || '')) throw new Error('Invalid transaction hash.');
+    const block = blockNumber(tx.block_number);
+    if (!['ok','error'].includes(tx.status)) throw new Error('Missing finalized receipt status.');
+    const gasUsed = uint(tx.gas_used, 'receipt gasUsed'), gasPrice = uint(tx.gas_price, 'receipt effectiveGasPrice');
+    if (!gasUsed) throw new Error('Invalid receipt gasUsed.');
+    const timestamp = Date.parse(tx.timestamp);
+    if (!Number.isFinite(timestamp) || typeof tx.timestamp !== 'string' || !/T.*(?:Z|[+-]\d\d:\d\d)$/.test(tx.timestamp))
+      throw new Error('Invalid transaction UTC timestamp.');
+    const nonce = uint(tx.nonce, 'transaction nonce');
+    return {hash:tx.hash.toLowerCase(),address:sender.toLowerCase(),block,nonce:nonce.toString(),
+      timestamp:new Date(timestamp).toISOString(),day:new Date(timestamp).toISOString().slice(0,10),
+      gasUsed:gasUsed.toString(),gasPrice:gasPrice.toString(),feeWei:gasUsed*gasPrice,failed:tx.status==='error'};
+  }
+  function formatEth(wei) {
+    const value = BigInt(wei), fraction = (value % WEI).toString().padStart(18,'0').replace(/0+$/,'');
+    return (value / WEI).toString() + (fraction ? '.'+fraction : '');
+  }
+  function formatUsd(cents) {
+    const value = BigInt(cents);
+    return '$' + (value/100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',') + '.' + (value%100n).toString().padStart(2,'0');
+  }
+  function priceToUnits(value) {
+    const match = /^(\d+)(?:\.(\d*))?(?:[eE]([+-]?\d{1,3}))?$/.exec(String(value));
+    if (!match || match[1].length > 30 || (match[2] || '').length > 40) throw new Error('Invalid daily USD price.');
+    const exponent = Number(match[3] || 0), decimals = (match[2] || '').length;
+    if (Math.abs(exponent) > 40) throw new Error('Invalid daily USD price exponent.');
+    const digits = BigInt(match[1] + (match[2] || '')), shift = 8 + exponent - decimals;
+    const units = shift >= 0 ? digits * 10n**BigInt(shift) : (digits + 10n**BigInt(-shift)/2n) / 10n**BigInt(-shift);
+    if (units <= 0n || units > 10n**24n) throw new Error('Invalid daily USD price range.');
+    return units;
+  }
+  function valueRows(rows, prices) {
+    return rows.map(row => {
+      const price = prices.get(row.day), denominator = WEI * PRICE_SCALE;
+      return {...row, priceUnits:price?.units ?? null, provisional:!!price?.provisional,
+        usdCents:price ? (row.feeWei*price.units*100n + denominator/2n)/denominator : null};
+    });
+  }
+  function summarize(rows) {
+    const result = {count:0,wei:0n,usdCents:0n,failedCount:0,failedWei:0n,failedUsdCents:0n,
+      missingCount:0,missingDays:[],failedMissingCount:0,provisionalCount:0};
+    const days = new Set();
+    for (const row of rows) {
+      result.count++; result.wei += row.feeWei;
+      if (row.usdCents === null || row.usdCents === undefined) {result.missingCount++;days.add(row.day);}
+      else result.usdCents += row.usdCents;
+      if (row.provisional) result.provisionalCount++;
+      if (row.failed) {
+        result.failedCount++;result.failedWei += row.feeWei;
+        if (row.usdCents === null || row.usdCents === undefined) result.failedMissingCount++;
+        else result.failedUsdCents += row.usdCents;
+      }
+    }
+    result.missingDays = [...days].sort();
+    return result;
+  }
+  function serializeRow(row) {
+    return {hash:row.hash,from:row.address,block_number:row.block,nonce:row.nonce,timestamp:row.timestamp,
+      gas_used:row.gasUsed,gas_price:row.gasPrice,status:row.failed?'error':'ok',feeWei:row.feeWei.toString()};
+  }
+  function cursorKey(cursor) {
+    return JSON.stringify(cursor ? Object.fromEntries(Object.entries(cursor).sort(([a],[b])=>a.localeCompare(b))) : {});
+  }
+  function validateCursor(cursor) {
+    if (cursor === null) return null;
+    if (!cursor || typeof cursor !== 'object' || Array.isArray(cursor) || !Object.keys(cursor).length || Object.keys(cursor).length > 20)
+      throw new Error('Invalid pagination cursor.');
+    for (const [key,value] of Object.entries(cursor)) {
+      if (!/^[a-z_]+$/.test(key) || !['number','string','boolean'].includes(typeof value) || String(value).length > 500 ||
+          (typeof value === 'number' && !Number.isSafeInteger(value))) throw new Error('Invalid pagination cursor fields.');
+    }
+    return cursor;
+  }
+  function hasNonceGap(rows) {
+    const nonces = rows.map(row=>BigInt(row.nonce)).sort((a,b)=>a<b?-1:a>b?1:0);
+    return nonces.some((nonce,index)=>nonce!==BigInt(index));
+  }
+  function validateCheckpoint(cp, address, cutoff) {
+    try {
+      if (cp.version !== 1 || cp.address !== address.toLowerCase() || cp.cutoff !== cutoff ||
+          !Number.isFinite(Date.parse(cp.asOf)) || typeof cp.complete !== 'boolean' || !Array.isArray(cp.rows) ||
+          !Array.isArray(cp.seen) || cp.seen.some(key=>typeof key !== 'string') || !Number.isSafeInteger(cp.pageCount) || cp.pageCount<0)
+        throw Error('schema');
+      validateCursor(cp.cursor);
+      if (cp.complete && (cp.cursor !== null || cp.pageCount<1 || cp.seen.length!==cp.pageCount || new Set(cp.seen).size!==cp.seen.length)) throw Error('terminal page metadata');
+      const hashes = new Set();
+      for (const saved of cp.rows) {
+        const row = normalizeTransaction(saved,address);
+        if (!row || row.block>cutoff || row.feeWei.toString() !== saved.feeWei || hashes.has(row.hash)) throw Error('receipt fields');
+        hashes.add(row.hash);
+      }
+      if (cp.complete && hasNonceGap(cp.rows)) throw Error('nonce continuity');
+      return cp;
+    } catch { throw new Error('Invalid saved checkpoint; clear local data and start a fresh calculation.'); }
+  }
+  function checkAbort(signal) { if (signal?.aborted) throw new DOMException('Calculation cancelled.','AbortError'); }
+  function sleep(ms, signal) {
+    return new Promise((resolve,reject)=>{
+      checkAbort(signal);
+      const onAbort=()=>{clearTimeout(timer);reject(new DOMException('Calculation cancelled.','AbortError'));};
+      const timer=setTimeout(()=>{signal?.removeEventListener('abort',onAbort);resolve();},ms);
+      signal?.addEventListener('abort',onAbort,{once:true});
+    });
+  }
+  function resetDelay(headers, now) {
+    const retry = headers.get('retry-after');
+    if (retry !== null) {
+      const seconds=Number(retry);
+      if (Number.isFinite(seconds)) return Math.max(0,seconds*1000);
+      const date=Date.parse(retry); if (Number.isFinite(date)) return Math.max(0,date-now);
+    }
+    const reset=Number(headers.get('x-ratelimit-reset'));
+    if (reset>0) return Math.max(0,reset>1e12?reset-now:reset>1e9?reset*1000-now:reset*1000);
+    return 0;
+  }
+  function createClient(options={}) {
+    const fetcher=options.fetch || globalThis.fetch, pause=options.sleep || sleep, now=options.now || Date.now,
+      random=options.random || Math.random, progress=options.onProgress || (()=>{}), signal=options.signal;
+    let nextAt=0;
+    async function get(url) {
+      for(let attempt=0;attempt<5;attempt++) {
+        checkAbort(signal);
+        const delay=Math.max(0,nextAt-now());
+        if(delay) {progress(`Source pacing: waiting ${Math.ceil(delay/1000)}s. Progress is retained.`);await pause(delay,signal);}
+        let response, failure;
+        const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),25000);
+        const onAbort=()=>controller.abort(); signal?.addEventListener('abort',onAbort,{once:true});
+        try {
+          response=await fetcher(url,{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',headers:{Accept:'application/json'}});
+          if(response.ok) {
+            const body=await response.json();
+            nextAt=now()+(options.pace ?? 600);
+            if(response.headers.get('x-ratelimit-remaining') === '0') nextAt=Math.max(nextAt,now()+resetDelay(response.headers,now()));
+            return body;
+          }
+          if(response.status!==429 && response.status<500) throw new Error(`Source returned HTTP ${response.status}. Try again later.`);
+          failure=new Error(`Source unavailable (HTTP ${response.status}).`);
+        } catch(error) {
+          checkAbort(signal);
+          if(response && response.status!==429 && response.status<500) throw error;
+          failure=error;
+        } finally {clearTimeout(timeout);signal?.removeEventListener('abort',onAbort);}
+        if(attempt===4) throw new Error(`${failure.message} Retry budget exhausted; resume your saved calculation.`);
+        const wait=Math.max(1000*2**attempt+Math.floor(random()*400),response?resetDelay(response.headers,now()):0);
+        nextAt=now()+wait;progress(`Source retry ${attempt+1}/4: waiting ${Math.ceil(wait/1000)}s. Cursor retained.`);
+        await pause(wait,signal);nextAt=now();
+      }
+    }
+    return {get};
+  }
+  async function fetchWallet(address, options) {
+    address=parseAddresses(address)[0];
+    const {cutoff,asOf,request,onCheckpoint=()=>{},onProgress=()=>{},signal}=options;
+    blockNumber(cutoff);
+    if (!Number.isFinite(Date.parse(asOf))) throw new Error('Invalid as-of timestamp.');
+    const cp=options.checkpoint ? validateCheckpoint(options.checkpoint,address,cutoff) :
+      {version:1,address,cutoff,asOf,complete:false,cursor:null,rows:[],seen:[],pageCount:0};
+    const rows=new Map(cp.rows.map(saved=>{const row=normalizeTransaction(saved,address);return [row.hash,row];}));
+    const seen=new Set(cp.seen);let cursor=cp.cursor,complete=cp.complete,pageCount=cp.pageCount;
+    if(complete) return {rows:[...rows.values()],complete,checkpoint:cp};
+    while(!complete) {
+      checkAbort(signal);
+      const key=cursorKey(cursor);
+      if(seen.has(key)) throw new Error('Repeated source cursor: history is incomplete.');
+      const query=new URLSearchParams({...cursor,filter:'from'});
+      const page=await request(`${EXPLORER}/addresses/${address}/transactions?${query}`);
+      checkAbort(signal);
+      if(!page || !Array.isArray(page.items) || !Object.hasOwn(page,'next_page_params')) throw new Error('Malformed transaction page: history is incomplete.');
+      const next=validateCursor(page.next_page_params);
+      // Commit the entire validated page atomically; a malformed row cannot advance its cursor.
+      const additions=[];
+      for(const tx of page.items) {
+        if(tx.block_number===null && (tx.status===null || tx.status==='pending')) continue;
+        const row=normalizeTransaction(tx,address);
+        if(row && row.block<=cutoff) additions.push(row);
+      }
+      for(const row of additions) {
+        const previous=rows.get(row.hash);
+        if(previous && JSON.stringify(serializeRow(previous))!==JSON.stringify(serializeRow(row)))
+          throw new Error('Source changed a transaction; start a fresh calculation.');
+        rows.set(row.hash,row);
+      }
+      seen.add(key);cursor=next;complete=next===null;pageCount++;
+      // A nonce gap can indicate capped history; EIP-7702 authorizations can also cause gaps.
+      // Keep this conservative warning explicit rather than silently certify a truncated total.
+      if(complete && hasNonceGap([...rows.values()])) {
+        const partial={version:1,address,cutoff,asOf,complete:false,cursor:null,rows:[...rows.values()].map(serializeRow),seen:[],pageCount:0};
+        onCheckpoint(partial);
+        throw new Error('History may be incomplete: nonce gaps (or EIP-7702 authorizations). Observed fees retained; explorer review needed.');
+      }
+      const snapshot={version:1,address,cutoff,asOf,complete,cursor,rows:[...rows.values()].map(serializeRow),seen:[...seen],pageCount};
+      onCheckpoint(snapshot);onProgress({address,count:rows.size,pageCount,complete});
+    }
+    return {rows:[...rows.values()],complete,checkpoint:{version:1,address,cutoff,asOf,complete,cursor,rows:[...rows.values()].map(serializeRow),seen:[...seen],pageCount}};
+  }
+  function validatePriceCache(text, now=Date.now()) {
+    const result=new Map();
+    try {
+      const cache=JSON.parse(text);
+      if(cache.version!==1 || cache.source!==SOURCE || !cache.entries || typeof cache.entries!=='object') return result;
+      const today=new Date(now).toISOString().slice(0,10);
+      for(const [day,entry] of Object.entries(cache.entries)) {
+        if(!validDay(day) || day>=today || !entry || !/^[0-9]{1,25}$/.test(entry.units) || BigInt(entry.units)<=0n ||
+           BigInt(entry.units)>10n**24n || entry.bucket!==Date.parse(day)/1000 || !Number.isFinite(Date.parse(entry.fetchedAt)) ||
+           Date.parse(entry.fetchedAt)>now || Date.parse(entry.fetchedAt)<(entry.bucket+86400)*1000) continue;
+        result.set(day,{units:BigInt(entry.units),bucket:entry.bucket,fetchedAt:entry.fetchedAt,provisional:false});
+      }
+    } catch { /* Untrusted or unavailable cache is an optimization, never a requirement. */ }
+    return result;
+  }
+  async function loadPrices(days, options) {
+    const {request,storage,onProgress=()=>{},signal,now=Date.now}=options;
+    const current=now(),today=new Date(current).toISOString().slice(0,10);
+    let cache=new Map();
+    try {cache=validatePriceCache(storage?.getItem(PRICE_KEY),current);} catch { /* Disabled storage. */ }
+    const result=new Map(),wanted=[...new Set(days)].sort();
+    if(wanted.some(day=>!validDay(day))) throw new Error('Invalid price UTC day.');
+    const missing=[];
+    for(const day of wanted) {if(cache.has(day)) result.set(day,cache.get(day));else if(day>='2016-05-18' && day<=today)missing.push(day);}
+    // Fetch sparse windows only where transactions need prices; one daily close per UTC day.
+    for(let i=0;i<missing.length;) {
+      checkAbort(signal);
+      const start=missing[i],endMs=Math.min(Date.parse(start)+299*DAY,Date.parse(today)+DAY);
+      const group=[];while(i<missing.length && Date.parse(missing[i])<endMs)group.push(missing[i++]);
+      const wantedInWindow=new Set(group),end=new Date(endMs).toISOString();
+      onProgress(`Daily USD prices: ${start} to ${end.slice(0,10)} (Coinbase Exchange).`);
+      const url=new URL('https://api.exchange.coinbase.com/products/ETH-USD/candles');
+      url.search=new URLSearchParams({granularity:'86400',start:start+'T00:00:00Z',end});
+      let candles;
+      try {candles=await request(url.href);} catch(error) {
+        checkAbort(signal);onProgress(`Price source unavailable for ${start}; missing USD stays explicit. ${error.message}`);continue;
+      }
+      if(!Array.isArray(candles)) {onProgress(`Invalid price response for ${start}; USD remains incomplete.`);continue;}
+      for(const candle of candles) {
+        if(!Array.isArray(candle) || !Number.isSafeInteger(candle[0]) || candle[0]%86400!==0 ||
+           !Number.isFinite(new Date(candle[0]*1000).getTime()))continue;
+        const day=new Date(candle[0]*1000).toISOString().slice(0,10);
+        if(!wantedInWindow.has(day))continue;
+        try {
+          const entry={units:priceToUnits(candle[4]),bucket:candle[0],fetchedAt:new Date(current).toISOString(),provisional:day===today};
+          result.set(day,entry);if(day<today)cache.set(day,entry);
+        } catch { /* Invalid quotes remain missing, never zero. */ }
+      }
+      try {
+        const entries=Object.fromEntries([...cache].map(([day,entry])=>[day,{...entry,units:entry.units.toString()}]));
+        storage?.setItem(PRICE_KEY,JSON.stringify({version:1,source:SOURCE,entries}));
+      } catch {onProgress('Local price cache unavailable; calculation continues in memory.');}
+    }
+    return result;
+  }
+  return {WEI,PRICE_SCALE,SOURCE,PRICE_KEY,JOB_KEY,EXPLORER,parseAddresses,normalizeTransaction,formatEth,formatUsd,priceToUnits,
+    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,fetchWallet,loadPrices,checkAbort};
+})();
+</script>
+</body></html>

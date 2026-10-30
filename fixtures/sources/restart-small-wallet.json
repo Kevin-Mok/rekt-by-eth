@@ -1,0 +1,686 @@
+{
+  "source_url": "https://eth.blockscout.com/api/v2/addresses/0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8/transactions?filter=from",
+  "retrieved_at": "2026-10-30T02:32:33.298396+00:00",
+  "origin": "http://127.0.0.1:4317",
+  "http_status": "200",
+  "headers": {
+    "date": "Fri, 30 Oct 2026 02:31:20 GMT",
+    "content-type": "application/json; charset=utf-8",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "bypass-429-option,x-ratelimit-reset,x-ratelimit-limit,x-ratelimit-remaining,api-v2-temp-token",
+    "x-ratelimit-limit": "180",
+    "x-ratelimit-remaining": "175",
+    "x-ratelimit-reset": "39899"
+  },
+  "projection": "Only identity, timestamp, receipt-equivalent fee/status fields and nonce retained. Terminal single-page sent history; no limited-page truncation.",
+  "response": {
+    "items": [
+      {
+        "hash": "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c",
+        "block_number": 26302568,
+        "timestamp": "2026-10-30T02:25:47.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "320222",
+        "gas_price": "10129041152",
+        "fee": {
+          "type": "actual",
+          "value": "3243541815775744"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 33
+      },
+      {
+        "hash": "0x7d2087bdd9f69ac47abbaa734ea429430b2931ba3c358b160114ef56d4409b94",
+        "block_number": 26302553,
+        "timestamp": "2026-10-30T02:22:47.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "215402",
+        "gas_price": "9992652375",
+        "fee": {
+          "type": "actual",
+          "value": "2152437306879750"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 32
+      },
+      {
+        "hash": "0x7b14e6690ecb4ab196f2e43a780fc4af838126aeec51831c9a69cf382fcde4d4",
+        "block_number": 26302542,
+        "timestamp": "2026-10-30T02:20:35.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "218925",
+        "gas_price": "10228068612",
+        "fee": {
+          "type": "actual",
+          "value": "2239179920882100"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 31
+      },
+      {
+        "hash": "0x93dcb47a4db46549087e996946115aeac2438a57449cf2a842c786c711bda755",
+        "block_number": 26302536,
+        "timestamp": "2026-10-30T02:19:23.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "213093",
+        "gas_price": "8965183537",
+        "fee": {
+          "type": "actual",
+          "value": "1910417855449941"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 30
+      },
+      {
+        "hash": "0x4f76712d0de578c063c9cff5e2d6675e211e1b375dd3b94421ded0e24f203daa",
+        "block_number": 26302495,
+        "timestamp": "2026-10-30T02:10:47.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "69705",
+        "gas_price": "7873661606",
+        "fee": {
+          "type": "actual",
+          "value": "548833582246230"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 29
+      },
+      {
+        "hash": "0xb9beea1424fd5839464f29194a9154489a3267e56aac067d32f160adf0c1d567",
+        "block_number": 26302495,
+        "timestamp": "2026-10-30T02:10:47.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "26464",
+        "gas_price": "7873661606",
+        "fee": {
+          "type": "actual",
+          "value": "208368580741184"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "nonce": 28
+      },
+      {
+        "hash": "0x8855509201afb0be7aa934a7036744298e932bd5fb2bfdfc534082031ea81ac1",
+        "block_number": 26302495,
+        "timestamp": "2026-10-30T02:10:47.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "95001",
+        "gas_price": "7996752342",
+        "fee": {
+          "type": "actual",
+          "value": "759699469242342"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 27
+      },
+      {
+        "hash": "0x154c0f612597fde8b2c12517680734a2833a40c7baf0577371d9bdc22f7a90a0",
+        "block_number": 26302495,
+        "timestamp": "2026-10-30T02:10:47.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "46364",
+        "gas_price": "7996752342",
+        "fee": {
+          "type": "actual",
+          "value": "370761425584488"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "nonce": 26
+      },
+      {
+        "hash": "0x84fd92c8682f96f7839e1c617691786b7fc85b5a4397923472f2fb4e8ae80010",
+        "block_number": 26302492,
+        "timestamp": "2026-10-30T02:10:11.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "89384",
+        "gas_price": "8336483659",
+        "fee": {
+          "type": "actual",
+          "value": "745148255376056"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 25
+      },
+      {
+        "hash": "0x80b5ec7e615a503a130b664e1ea33611d55c27782a9effce394c202894da9e18",
+        "block_number": 26302467,
+        "timestamp": "2026-10-30T02:05:11.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "325399",
+        "gas_price": "7572243940",
+        "fee": {
+          "type": "actual",
+          "value": "2464000605832060"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 24
+      },
+      {
+        "hash": "0x7cfd26b2570c0574742b8eaf4a879c5a0096f51073acf31093311d25222665ed",
+        "block_number": 26302466,
+        "timestamp": "2026-10-30T02:04:59.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "46457",
+        "gas_price": "7446724287",
+        "fee": {
+          "type": "actual",
+          "value": "345952470201159"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xBB0E17EF65F82Ab018d8EDd776e8DD940327B28b",
+        "nonce": 23
+      },
+      {
+        "hash": "0x0df47acee2fc2e2bac088e246e27bc45148f0b5e870768ea088b03431cee7a61",
+        "block_number": 26302464,
+        "timestamp": "2026-10-30T02:04:35.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "290925",
+        "gas_price": "9853077877",
+        "fee": {
+          "type": "actual",
+          "value": "2866506681366225"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 22
+      },
+      {
+        "hash": "0xcea8119ec0b68a6356ef41a980ef1349ad3c1b30022a82cd0f6a9e63284f62d6",
+        "block_number": 26302448,
+        "timestamp": "2026-10-30T02:01:23.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "29741",
+        "gas_price": "11005820654",
+        "fee": {
+          "type": "actual",
+          "value": "327324112070614"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xBB0E17EF65F82Ab018d8EDd776e8DD940327B28b",
+        "nonce": 21
+      },
+      {
+        "hash": "0x0861bed2cd0a1f70a2c57b99aa8f5c836c3e50c09d7e895ec3c32a413bd70865",
+        "block_number": 26302443,
+        "timestamp": "2026-10-30T02:00:23.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "51641",
+        "gas_price": "12086215211",
+        "fee": {
+          "type": "actual",
+          "value": "624144239711251"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xBB0E17EF65F82Ab018d8EDd776e8DD940327B28b",
+        "nonce": 20
+      },
+      {
+        "hash": "0x68ec757484a6a3fc4469bb36e3a07d1093be8adf7f92b62d95e7515db8c40f70",
+        "block_number": 26302443,
+        "timestamp": "2026-10-30T02:00:23.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "149102",
+        "gas_price": "11361169229",
+        "fee": {
+          "type": "actual",
+          "value": "1693973054382358"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 19
+      },
+      {
+        "hash": "0x2e4974b4a1d072853f05a90a8a5a34e4f05497caaf4c122ef6d1647b843135dd",
+        "block_number": 26302437,
+        "timestamp": "2026-10-30T01:59:11.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "329384",
+        "gas_price": "11942171586",
+        "fee": {
+          "type": "actual",
+          "value": "3933560245683024"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 18
+      },
+      {
+        "hash": "0xd2f9c6b79b8b5a296b8b056e8259c307d6269417645073f85a1e6c4c59235b41",
+        "block_number": 26302389,
+        "timestamp": "2026-10-30T01:49:35.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "459865",
+        "gas_price": "16632346429",
+        "fee": {
+          "type": "actual",
+          "value": "7648633990572085"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xAcdDAC6C77318B615f7F6fB9bb67c6833e9c05f1",
+        "nonce": 17
+      },
+      {
+        "hash": "0x4d0e695aaad5dcebce893c07854dc5ddf02910cc5c666ee9d3355f79a296ba00",
+        "block_number": 26302387,
+        "timestamp": "2026-10-30T01:49:11.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "46430",
+        "gas_price": "15366741310",
+        "fee": {
+          "type": "actual",
+          "value": "713477799023300"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+        "nonce": 16
+      },
+      {
+        "hash": "0x9c45b95f8a694f19d4c48ef8b900b060f51e72758b01999baa5027c825225cd8",
+        "block_number": 26302376,
+        "timestamp": "2026-10-30T01:46:59.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "191117",
+        "gas_price": "11551746073",
+        "fee": {
+          "type": "actual",
+          "value": "2207735054233541"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 15
+      },
+      {
+        "hash": "0x0ebdb7eb8f294914e2e343f7d884f76388e6563692514976b0f407ddf372aa45",
+        "block_number": 26302372,
+        "timestamp": "2026-10-30T01:46:11.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "284551",
+        "gas_price": "16475233289",
+        "fee": {
+          "type": "actual",
+          "value": "4688044107618239"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 14
+      },
+      {
+        "hash": "0x77c72d6ac5c73c5110c0b064b58d4733bcb6b8ec0ece3c9012f008b6ddb36142",
+        "block_number": 26302330,
+        "timestamp": "2026-10-30T01:37:47.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "60488",
+        "gas_price": "12830841651",
+        "fee": {
+          "type": "actual",
+          "value": "776111949785688"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xec53bF9167f50cDEB3Ae105f56099aaaB9061F83",
+        "nonce": 13
+      },
+      {
+        "hash": "0xff2f0d4c49bc0b7dc01e08fd303b65045b3477b9a1a0fcbabcc260e3a9a78865",
+        "block_number": 26302323,
+        "timestamp": "2026-10-30T01:36:23.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "204328",
+        "gas_price": "17718131537",
+        "fee": {
+          "type": "actual",
+          "value": "3620310380692136"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 12
+      },
+      {
+        "hash": "0xe82820be388b9edf440dabc1c9b2024d6954ed84475649a29289472dd53d3839",
+        "block_number": 26302316,
+        "timestamp": "2026-10-30T01:34:59.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "535803",
+        "gas_price": "18191364996",
+        "fee": {
+          "type": "actual",
+          "value": "9746987938951788"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 11
+      },
+      {
+        "hash": "0xaaa17fbe4e986b30cb99c25daec8dfce9421ae749bdfddcd3d355eac579693f8",
+        "block_number": 26302313,
+        "timestamp": "2026-10-30T01:34:23.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "395725",
+        "gas_price": "18567079916",
+        "fee": {
+          "type": "actual",
+          "value": "7347457699759100"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 10
+      },
+      {
+        "hash": "0x7ac04296bb4be07cfa842914d12e1803068308ad6cfd9a9967ebd1a00a64589e",
+        "block_number": 26302307,
+        "timestamp": "2026-10-30T01:33:11.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "252662",
+        "gas_price": "10884231337",
+        "fee": {
+          "type": "actual",
+          "value": "2750031658069094"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 9
+      },
+      {
+        "hash": "0xd6df3a458ade163a5a558610089d57ae68cfb594640ead07f42523f048aad3e2",
+        "block_number": 26302307,
+        "timestamp": "2026-10-30T01:33:11.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "46712",
+        "gas_price": "10884231337",
+        "fee": {
+          "type": "actual",
+          "value": "508424214213944"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+        "nonce": 8
+      },
+      {
+        "hash": "0x3f323a8de6f1bda811530ed18fe6d98c0c0481cd5b7f90aeb39fd74e29285e0e",
+        "block_number": 26302295,
+        "timestamp": "2026-10-30T01:30:47.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "206213",
+        "gas_price": "15226933463",
+        "fee": {
+          "type": "actual",
+          "value": "3139991630205619"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 7
+      },
+      {
+        "hash": "0x77ac4425e3853c67f1ce2fbb3ad7fd2d167c6f9c0d46c3397fc8a68b13df77ef",
+        "block_number": 26302293,
+        "timestamp": "2026-10-30T01:30:23.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "297335",
+        "gas_price": "15084873249",
+        "fee": {
+          "type": "actual",
+          "value": "4485260787491415"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x8feAB81D36E7576107D5dE0758c1b839Be31B4F6",
+        "nonce": 6
+      },
+      {
+        "hash": "0x1ba0e28ff7e6f491c58e1258e43e5b91e43f490ce2cd5f36fabb8902f8f54d6a",
+        "block_number": 23553579,
+        "timestamp": "2025-10-11T09:26:35.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "21000",
+        "gas_price": "1585715939",
+        "fee": {
+          "type": "actual",
+          "value": "33300034719000"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xEA7E4441159D352B1cf10f4a4454D93a77aA8825",
+        "nonce": 5
+      },
+      {
+        "hash": "0x56887be966e3024fffde3f3c165e015bbf9bf58f8423f826ad36cc8c073cf858",
+        "block_number": 23553576,
+        "timestamp": "2025-10-11T09:25:59.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "80977",
+        "gas_price": "1610256041",
+        "fee": {
+          "type": "actual",
+          "value": "130393703432057"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xdA5e1988097297dCdc1f90D4dFE7909e847CBeF6",
+        "nonce": 4
+      },
+      {
+        "hash": "0x22c1f992ad4ba59f9838f39434c3cb4effac184bcafbea05147db84849b1130d",
+        "block_number": 23549943,
+        "timestamp": "2025-10-10T21:14:59.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "558476",
+        "gas_price": "27597014790",
+        "fee": {
+          "type": "actual",
+          "value": "15412270431860040"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x2E1Dee213BA8d7af0934C49a23187BabEACa8764",
+        "nonce": 3
+      },
+      {
+        "hash": "0x691be5c01563087d9ddd1fea0d60e72a80c953505d032bd07f437eb361ad689a",
+        "block_number": 23549828,
+        "timestamp": "2025-10-10T20:51:47.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "306733",
+        "gas_price": "15682353226",
+        "fee": {
+          "type": "actual",
+          "value": "4810295252070658"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x2E1Dee213BA8d7af0934C49a23187BabEACa8764",
+        "nonce": 2
+      },
+      {
+        "hash": "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d",
+        "block_number": 23549540,
+        "timestamp": "2025-10-10T19:53:59.000000Z",
+        "type": 2,
+        "status": "error",
+        "result": "Reverted",
+        "gas_used": "617261",
+        "gas_price": "5294035600",
+        "fee": {
+          "type": "actual",
+          "value": "3267801708491600"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0x2E1Dee213BA8d7af0934C49a23187BabEACa8764",
+        "nonce": 1
+      },
+      {
+        "hash": "0x3cd6fec68b8ebffa93cc5b4f87f81c9d4b854cbfc9604d1c72b979beefb8c42f",
+        "block_number": 23549527,
+        "timestamp": "2025-10-10T19:51:23.000000Z",
+        "type": 2,
+        "status": "ok",
+        "result": "success",
+        "gas_used": "60283",
+        "gas_price": "7363179205",
+        "fee": {
+          "type": "actual",
+          "value": "443874532015015"
+        },
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "to": "0xdA5e1988097297dCdc1f90D4dFE7909e847CBeF6",
+        "nonce": 0
+      }
+    ],
+    "next_page_params": null
+  },
+  "expected": {
+    "sent": 34,
+    "failed": 10,
+    "fee_wei": "96164252494628845",
+    "failed_fee_wei": "39629962723545907",
+    "first_transaction_utc": "2025-10-10T19:51:23.000000Z",
+    "last_transaction_utc": "2026-10-30T02:25:47.000000Z",
+    "cutoff_block": 26302568
+  },
+  "independent_receipts": [
+    {
+      "rpc_url": "https://eth.drpc.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "method": "eth_getTransactionReceipt",
+        "params": [
+          "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c"
+        ]
+      },
+      "headers": {
+        "date": "Fri, 30 Oct 2026 02:32:00 GMT",
+        "content-type": "application/json",
+        "access-control-allow-origin": "*"
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "transactionHash": "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c",
+          "blockNumber": "0x1915868",
+          "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+          "gasUsed": "0x4e2de",
+          "effectiveGasPrice": "0x25bbce700",
+          "status": "0x0",
+          "type": "0x2"
+        }
+      }
+    },
+    {
+      "rpc_url": "https://eth.drpc.org",
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "method": "eth_getTransactionReceipt",
+        "params": [
+          "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d"
+        ]
+      },
+      "headers": {
+        "date": "Fri, 30 Oct 2026 02:32:00 GMT",
+        "content-type": "application/json",
+        "access-control-allow-origin": "*"
+      },
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "result": {
+          "transactionHash": "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d",
+          "blockNumber": "0x1675664",
+          "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+          "gasUsed": "0x96b2d",
+          "effectiveGasPrice": "0x13b8c9290",
+          "status": "0x0",
+          "type": "0x2"
+        }
+      }
+    }
+  ],
+  "empty_wallet": {
+    "address": "0x7f320d5f214bc330213da459f91b20b42d6a501e",
+    "source_url": "https://eth.blockscout.com/api/v2/addresses/0x7f320d5f214bc330213da459f91b20b42d6a501e/transactions?filter=from",
+    "retrieved_at": "2026-10-30T02:32:33.298396+00:00",
+    "headers": {
+      "date": "Fri, 30 Oct 2026 02:32:00 GMT",
+      "content-type": "application/json; charset=utf-8",
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "bypass-429-option,x-ratelimit-reset,x-ratelimit-limit,x-ratelimit-remaining,api-v2-temp-token",
+      "x-ratelimit-limit": "180",
+      "x-ratelimit-remaining": "179",
+      "x-ratelimit-reset": "59395"
+    },
+    "response": {
+      "items": [],
+      "next_page_params": null
+    }
+  }
+}

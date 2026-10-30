@@ -1,0 +1,20 @@
+# Local unattended-run and review material
+NIGHT_NOTE.md
+review-notes.md
+night-prompt.txt
+goal*.txt
+night-*.txt
+.harness/
+.lavish/
+node_modules/
+*.log
+__pycache__/
+*.pyc
+# Private/internal run material (never published)
+prompts/
+docs/postmortem/
+run*.sh
+edit.txt
+.agents/
+.codex/
+.aws/

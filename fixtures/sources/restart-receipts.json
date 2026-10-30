@@ -1,0 +1,181 @@
+{
+  "rpc_url": "https://eth.drpc.org",
+  "origin": "http://127.0.0.1:4317",
+  "captured_at": "2026-10-30T02:28:08.810465+00:00",
+  "projection": "Receipt logs omitted; only identity, chain, fee and status fields retained. Blockscout global page projected to selected public transactions.",
+  "chain": {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_chainId",
+      "params": []
+    },
+    "headers": {
+      "date": "Fri, 30 Oct 2026 02:28:08 GMT",
+      "content-type": "application/json",
+      "access-control-allow-origin": "*"
+    },
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x1"
+    }
+  },
+  "samples": [
+    {
+      "blockscout_source_url": "https://eth.blockscout.com/api/v2/addresses/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045/transactions?filter=from",
+      "blockscout": {
+        "hash": "0x384554825f9e7e4834afecb88f67d65e76094884040ecd682fc0a571365f14a6",
+        "block_number": 26137726,
+        "timestamp": "2026-10-07T03:09:35.000000Z",
+        "type": 2,
+        "status": "ok",
+        "gas_used": "46912",
+        "gas_price": "281329357",
+        "fee": {
+          "type": "actual",
+          "value": "13197722795584"
+        },
+        "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+      },
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x384554825f9e7e4834afecb88f67d65e76094884040ecd682fc0a571365f14a6"
+          ]
+        },
+        "headers": {
+          "date": "Fri, 30 Oct 2026 02:28:09 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x384554825f9e7e4834afecb88f67d65e76094884040ecd682fc0a571365f14a6",
+            "blockNumber": "0x18ed47e",
+            "from": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+            "gasUsed": "0xb740",
+            "effectiveGasPrice": "0x10c4becd",
+            "status": "0x1",
+            "type": "0x2"
+          }
+        }
+      },
+      "fee_wei": "13197722795584"
+    },
+    {
+      "blockscout_source_url": "https://eth.blockscout.com/api/v2/transactions?filter=validated",
+      "blockscout": {
+        "hash": "0xe02c402c446a0f966e510b07da725b19b91718fff1107afef148f1874db277a6",
+        "block_number": 26302571,
+        "timestamp": "2026-10-30T02:26:23.000000Z",
+        "type": 2,
+        "status": "error",
+        "gas_used": "188167",
+        "gas_price": "4432908115",
+        "fee": {
+          "type": "actual",
+          "value": "834127021275205"
+        },
+        "from": "0xECa713bb7483D1268e0147bF1803217E3ebD8170",
+        "nonce": 2777
+      },
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xe02c402c446a0f966e510b07da725b19b91718fff1107afef148f1874db277a6"
+          ]
+        },
+        "headers": {
+          "date": "Fri, 30 Oct 2026 02:28:09 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xe02c402c446a0f966e510b07da725b19b91718fff1107afef148f1874db277a6",
+            "blockNumber": "0x191586b",
+            "from": "0xeca713bb7483d1268e0147bf1803217e3ebd8170",
+            "gasUsed": "0x2df07",
+            "effectiveGasPrice": "0x10838cf53",
+            "status": "0x0",
+            "type": "0x2"
+          }
+        }
+      },
+      "fee_wei": "834127021275205"
+    },
+    {
+      "blockscout_source_url": "https://eth.blockscout.com/api/v2/transactions?filter=validated",
+      "blockscout": {
+        "hash": "0x2ea7856ace5ef29bc9fcefafc63b2e2330e1c76ffc696b2d7cc4e08adaa723d6",
+        "block_number": 26302571,
+        "timestamp": "2026-10-30T02:26:23.000000Z",
+        "type": 0,
+        "status": "ok",
+        "gas_used": "34654",
+        "gas_price": "6150956180",
+        "fee": {
+          "type": "actual",
+          "value": "213155235461720"
+        },
+        "from": "0x92eE85CDB56aBbe7c2e53b62D28F1bA4d6726f46",
+        "nonce": 1723
+      },
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x2ea7856ace5ef29bc9fcefafc63b2e2330e1c76ffc696b2d7cc4e08adaa723d6"
+          ]
+        },
+        "headers": {
+          "date": "Fri, 30 Oct 2026 02:28:09 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x2ea7856ace5ef29bc9fcefafc63b2e2330e1c76ffc696b2d7cc4e08adaa723d6",
+            "blockNumber": "0x191586b",
+            "from": "0x92ee85cdb56abbe7c2e53b62d28f1ba4d6726f46",
+            "gasUsed": "0x875e",
+            "effectiveGasPrice": "0x16ea02494",
+            "status": "0x1",
+            "type": "0x0"
+          }
+        }
+      },
+      "fee_wei": "213155235461720"
+    }
+  ],
+  "alternatives": [
+    {
+      "url": "https://ethereum-rpc.publicnode.com",
+      "result": "Earlier curl35 TLS failure, see prior source fixtures"
+    },
+    {
+      "url": "https://eth.llamarpc.com",
+      "result": "curl35 TLS wrong version number"
+    },
+    {
+      "url": "https://rpc.ankr.com/eth",
+      "result": "JSON-RPC -32000 authentication key required"
+    }
+  ],
+  "rpc_verified_at": "2026-10-30T02:28:09.293376+00:00"
+}

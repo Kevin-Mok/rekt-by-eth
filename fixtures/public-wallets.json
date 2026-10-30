@@ -1,0 +1,27 @@
+{
+  "captured_at": "2026-10-30T02:32:33.298396+00:00",
+  "chain_id": 1,
+  "small_failed": {
+    "address": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+    "label": "Public sender with successful and failed transactions",
+    "source_fixture": "sources/restart-small-wallet.json",
+    "sent": 34,
+    "failed": 10,
+    "fee_wei": "96164252494628845",
+    "failed_fee_wei": "39629962723545907",
+    "first_transaction_utc": "2025-10-10T19:51:23.000000Z",
+    "last_transaction_utc": "2026-10-30T02:25:47.000000Z",
+    "cutoff_block": 26302568
+  },
+  "empty": {
+    "address": "0x7f320d5f214bc330213da459f91b20b42d6a501e",
+    "label": "Valid address with no sent transactions at capture",
+    "source_fixture": "sources/restart-small-wallet.json",
+    "sent": 0
+  },
+  "notes": [
+    "Public fixtures are test inputs only, never product defaults.",
+    "Latest wallet activity can change; use the captured cutoff block when comparing exact fixture expectations.",
+    "USD prices are intentionally absent here. Current-day or missing quote days remain explicit; never value them as zero."
+  ]
+}
