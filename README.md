@@ -9,7 +9,7 @@ See what one or more Ethereum wallets paid to use the network, including failed 
 - **Built-in Node tests:** exercise the shipped inline production logic without a second library that can drift.
 - **Python/curl probes and public JSON fixtures:** reproducible source evidence without installed packages.
 
-The calculation engine and minimalist landing page are implemented. Monthly chart and CSV export are the next stage. See the [active plan](plans/wallet-gas.md), [verification evidence](docs/verification.md), [API evidence](docs/source-verification.md) and [manual smoke checks](docs/smoke-tests.md).
+The calculation engine, minimalist landing page, monthly chart and CSV export are implemented. See the [active plan](plans/wallet-gas.md), [verification evidence](docs/verification.md), [API evidence](docs/source-verification.md) and [manual smoke checks](docs/smoke-tests.md).
 
 ## Open and use
 
@@ -48,3 +48,11 @@ Python 3 source checks: `python3 scripts/verify-receipts.py` validates saved ind
 
 - CAD and other currencies via daily historical FX; USD is the only MVP currency.
 - Additional independent transaction enumerators and price-provider failover. The current product pins Coinbase with explicit missing days.
+
+## CSV and monthly chart
+
+Download CSV exports the exact currently displayed snapshot, including partial/missing/provisional flags. The monthly USD chart uses the same row cents; failed USD is drawn inside total spending. Months with sent transactions are shown, unpriced fees stay outside the bars and carry a star, and an accessible monthly table provides exact values.
+
+CSV has a uniform header and explicit `record_type`: `metadata`, `transaction`, `wallet_total`, `monthly_total`, `total`. Reconcile by summing **transaction** rows against the single **total** record; do not sum every record type together. Empty input wallets still get a zero wallet_total. Failed fees are separate subset columns. Missing transaction USD/price cells are blank; aggregate USD is the priced subtotal with `usd_complete=false` when incomplete. Current-day values carry `provisional=true`. Snapshot chain ID, as-of UTC, indexed block, source, price semantics and rounding policy are included.
+
+Wei and cents are decimal integer strings; ETH is an exact decimal string and USD has two decimals. Import wei, hashes and addresses as **text** in spreadsheet software to avoid its automatic numeric precision loss. Text cells are escaped and spreadsheet-formula prefixes neutralized. `node scripts/wallet-report.mjs --fixture small --csv /tmp/wallet-gas.csv` writes a reproducible offline fixture export; `--details` adds raw diagnostics only on a file-write failure.

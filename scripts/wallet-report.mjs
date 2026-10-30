@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Exercise the shipped inline engine; this is a verifier, not a runtime dependency.
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { Gas } from '../tests/load-core.mjs';
 const args=process.argv.slice(2),plain=args.includes('--plain'),label=plain?'[gas]':'⛽';
 if(args.includes('--help')) {
-  console.log(`${label} Wallet gas verification\nUsage: node scripts/wallet-report.mjs --fixture small|empty [--plain]\nReplays captured public data through the production engine without network access.`);
+  console.log(`${label} Wallet gas verification\nUsage: node scripts/wallet-report.mjs --fixture small|empty [--csv PATH] [--plain] [--details]\nReplays captured public data through the production engine without network access.`);
   process.exit(0);
 }
 const name=args[args.indexOf('--fixture')+1];
@@ -21,3 +21,11 @@ console.log(`${label} Captured ${name} wallet; complete sent history at block ${
 console.log(`${label} Sent ${total.count}; failed ${total.failedCount}; fee ${total.wei} wei (${Gas.formatEth(total.wei)} ETH)`);
 console.log(`${label} Failed subset ${total.failedWei} wei; already included in total`);
 console.log(`${label} USD ${Gas.formatUsd(total.usdCents)}${total.missingCount?' priced subtotal; INCOMPLETE':''}; missing prices ${total.missingCount} transactions / ${total.missingDays.length} UTC days`);
+
+if(args.includes('--csv')) {
+  const path=args[args.indexOf('--csv')+1];
+  if(!path || path.startsWith('--')){console.error(`${label} --csv requires an output path.`);process.exit(1);}
+  const csv=Gas.exportCsv(rows,{asOf:wallets.captured_at,cutoff:wallets.small_failed.cutoff_block,addresses:[address],historyComplete:true});
+  try{writeFileSync(path,csv);}catch(error){console.error(`${label} Could not write CSV. Choose a writable file path.${args.includes('--details')?' '+error.message:''}`);process.exit(1);}
+  console.log(`${label} CSV saved: ${path}; transaction, wallet, monthly and total records share exact row amounts.`);
+}

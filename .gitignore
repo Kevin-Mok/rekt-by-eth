@@ -18,3 +18,7 @@ edit.txt
 .agents/
 .codex/
 .aws/
+
+# Local-only checks and private reference data
+tests/e2e.local.*
+.env.e2e

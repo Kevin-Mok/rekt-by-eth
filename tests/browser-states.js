@@ -73,3 +73,13 @@ await page.eval(()=>{window.fetch=async(url,options)=>new Promise((resolve,rejec
 await page.fill('#wallets',wallets.empty.address);await page.click('#calculate');await page.click('#cancel');await waitDone();
 result=await state();check(!result.resultsVisible && /cancel/i.test(result.error),'Cancelled fresh block lookup must not paint a prior snapshot');
 console.log('PASS: cancellation during a fresh snapshot lookup keeps old results out of view');
+await page.open('http://127.0.0.1:4317');await install();
+await page.fill('#wallets',wallets.small_failed.address+'\n'+wallets.empty.address);await page.click('#calculate');await waitDone();
+const exportUi=JSON.parse(await page.eval(()=>JSON.stringify({button:!!document.querySelector('#export-csv'),chart:!!document.querySelector('#monthly-chart svg'),months:document.querySelectorAll('#monthly-rows tr').length})));
+check(exportUi.button&&exportUi.chart&&exportUi.months===2,'Completed results require CSV export and an accessible monthly chart');
+await page.eval(()=>{const original=URL.createObjectURL;URL.createObjectURL=blob=>{window.__downloadBlob=blob;return original(blob);};});
+await page.click('#export-csv');
+const csv=await page.eval(async()=>window.__downloadBlob.text());
+check(csv.includes('96164252494628845')&&csv.includes('39629962723545907')&&csv.includes('92.42'),'Downloaded CSV must contain exact captured total, failed subset and USD priced subtotal');
+check(csv.includes('monthly_total'),'CSV must include chart reconciliation rows');
+console.log('PASS: browser Blob download and accessible monthly chart reconcile captured results');
