@@ -28,13 +28,13 @@ The empty fixture has no transactions and zero totals. The actual browser-downlo
 
 ## Real browser observations
 
-The served local page successfully fetched Blockscout, Coinbase and dRPC through browser CORS. The final receipt-only live public failed+empty run at **2026-10-30 03:52:53 UTC**, indexed block **26303000**, returned:
+The served local page successfully fetched Blockscout, Coinbase and dRPC through browser CORS. The final receipt-only live public failed+empty run at **2026-10-30 04:11:09 UTC**, indexed block **26303091**, returned:
 
 - 36 sent, 10 failed, history complete, zero unverified receipts.
 - Total 97880651001924672 wei; failed subset 39629962723545907 wei.
-- USD 256.94, including 30 transactions priced by today's provisional candle; zero missing prices, two chart months and a generated CSV. This quote changes and is not a fixed expected target.
+- USD 256.95, including 30 transactions priced by today's provisional candle; zero missing prices, two chart months and a generated CSV. This quote changes and is not a fixed expected target.
 
-Two public transactions arrived after the 34-row capture, explaining its higher live count and ETH total. No values were tuned to a manual report. Earlier live USD observations were 255.17/255.58 as today's candle changed; those are prior observations, not current expected outputs.
+Two public transactions arrived after the 34-row capture, explaining its higher live count and ETH total. No values were tuned to a manual report. Earlier live USD observations were 255.17/255.58/256.94 as today's candle changed; those are prior observations, not current expected outputs.
 
 A separate deliberately cancelled Vitalik smoke fetched two pages / 100 transactions, 6540155982668857 wei (0.006540155982668857 ETH), and stayed visibly partial. It does not establish a complete high-volume wallet total. Earlier diagnostic paging reached 2,100 rows before an HTTP500 and remains explicitly partial.
 

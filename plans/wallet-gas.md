@@ -1,49 +1,70 @@
 # Wallet gas website: USD-only restart
 
-Build a self-contained read-only Ethereum mainnet gas audit page. Verify sources, implement exact calculations, add the minimalist interface, reconcile exports and charts, then review the completed artifact. This plan follows Kevin's direct 2026-10-30 RESTART instruction, which supersedes the original prompt wherever they conflict.
+Build a self-contained, read-only Ethereum mainnet gas audit page. Verify the sources and exact calculation, add the minimalist interface and reconciled exports, then record fresh verification and delivery status. The owner's direct RESTART instruction overrides the original prompt and conflicting review notes.
 
-## Authority and scope
-- Branch only: `night/2026-10-29-wallet-gas`; no deployment, main push, force-push or PR.
-- USD only. Other currencies via daily FX are future work. Original two-wallet/report checks dropped by Kevin; no tuned target figures.
-- Prior two-failure counter reset to zero; no stop-on-two-failures rule remains. Switch alternatives, record gaps and continue to a working page. Deadline 2026-10-30T14:00:00Z.
-- Existing Blockscout two-page evidence reused. Sent canonical mainnet transactions only; self-transfers once; failed gas included and shown as subset. BigInt receipt-equivalent gasUsed × effectiveGasPrice in wei.
-- One inline CSS/JS `index.html`, no dependencies, keys, signing, CDN or build step. Supporting Node tests, public fixtures and scripts allowed. No public wallet literals in index.html.
-- Private NIGHT_NOTE/review-notes and local run/goal/task/night files never staged or pushed. Existing unrelated files preserved. Commit related plan/docs with each implementation stage; after each commit scan tracked files and push only the approved branch if safe.
+## Scope and decisions
 
-## Decisions and interfaces
-- Pin Coinbase ETH-USD UTC daily candle close after full-window verification. Request <300-day windows, filter extraneous buckets. Eight decimal USD price scale, per-transaction cents rounded half up using integers; sum cents for all views. Today is provisional and not cached. Missing dates never guessed or valued as zero.
-- Address policy: 20-byte 0x hex, case-insensitive identity; mixed-case checksum is not checked and UI explains this. Split commas/semicolons/whitespace, deduplicate.
-- Core lives in a dedicated inline script block exposed as `Gas` for Node vm tests; UI code in a second inline block. No parallel production library that can drift.
-- `parseAddresses`, `normalizeTransaction`, `formatEth`, `priceToUnits`, `valueRows`, `summarize`, `fetchWallet`, `loadPrices`, `exportCsv`, `monthlyTotals`: tested production functions. Public data validated on every boundary.
-- Capture as-of UTC and indexed block before fetching, use one cutoff for all wallets. Persist versioned validated wallet pages + cursor + rows + cutoff locally atomically; resume that snapshot explicitly, refresh starts a new cutoff. Finite retries, timeout, cancellation, progress; respect rate headers where exposed and safe pacing otherwise. Never silently truncate >10k histories. Repeated cursors fail visibly.
-- Price cache versioned by source/day, timestamp/provenance checked; ignore corrupted data, tolerate disabled/full storage. A clear-local-data action removes only this app's keys. Public addresses/history stay on device but are sent to explorer and dates to Coinbase; no telemetry.
-- Partial ETH and USD states remain explicit; missing receipts are errors, missing daily prices yield an incomplete priced subtotal. Export includes metadata, exact wei, ETH, per-row USD cents, missing prices, failed subset and reconciliation summary.
+- Work only on `night/2026-10-29-wallet-gas`. No deployment, main push, PR or force-push. Preserve existing work and exclude private run/review artifacts.
+- USD only. CAD/other currencies via historical daily FX are future work. The original two-wallet/report check was dropped, not failed or pending. Never tune data to a target.
+- The earlier failure counter reset to zero on restart; no two-failure stop rule remains. Try alternatives, record workarounds and keep building. Deadline: 2026-10-30T14:00:00Z.
+- One index.html with inline CSS/JavaScript, system fonts and no build/CDN/backend/keys/signing. Supporting tests, public evidence and local verification scripts are allowed.
+- Accept full 0x/40-hex addresses, normalize identity and deduplicate comma/space/semicolon/newline lists. Mixed-case checksum is not verified; ENS is rejected. An empty wallet shows zeros.
+- Count unique confirmed canonical sent transactions only. Exclude incoming/internal/event duplication and L2 fees; self-transfers count once. Failed fees are included once and also shown as a subset.
 
-## Stage gates and evidence
-- [x] 1. Source verification (`feat: verify keyless mainnet data sources`): full-window Coinbase history including oldest public fixture days; independent mainnet sampled legacy/EIP1559/failed receipts; public failed and empty fixture; preserve paging evidence. Curl evidence now, browser CORS verified in Stage 3. Source limitations documented.
-- [x] 2. Logic (`feat: calculate exact wallet gas and historical USD`): defining Node tests observed RED then GREEN; BigInt fee/status/sender validation, exact rounding, UTC boundaries, empty wallet, duplicate hashes/addresses, >10k synthetic paging, retry/cancel/resume, validated cache and missing prices. Real public fixture smoke.
-- [x] 3. UI (`feat: add minimalist wallet gas landing page`): system fonts, concept + centered wallet box, responsive accessible results below, totals/failed line/table; real browser requests and empty/failed/multiple fixtures; progress/cancel/resume/storage/error states. Skills in required order: minimalist-ui, frontend-design, design-taste-frontend, polish/critique.
-- [x] 4. CSV/chart (`feat: export reconciled gas data and monthly chart`): test-first CSV parsing/reconciliation exact wei/ETH/cents including failed subset, monthly totals equal summary; accessible monthly USD chart; browser download and missing-data coverage.
-- [ ] 5. Final (`docs: verify and deliver wallet gas website`): fresh full Node + browser + CSV checks, review, secret scan, README APIs/limits/precision/cache instructions, smoke checks, final note and branch push verification. No deployment.
+## Data authority and precision
 
-## Risks and review focus
-- Explorer is sole transaction enumeration source; independently sampled receipt verification establishes field semantics, not exhaustive independent history. Reorg/indexing lag remains a disclosed risk.
-- Coinbase starts May 2016. Earlier/gap days explicitly missing; do not claim all historical USD totals are complete. Daily close differs from execution-time prices.
-- Blockscout may not expose rate headers through CORS; use conservative pacing + Retry-After where visible, retain atomic checkpoints through quota/offline/cancel.
-- Test lost-response/repeated cursor/duplicate boundary pages, corrupted persisted rows and prices, malformed receipt fields, mixed wallets with missing days, CSV partial/missing semantics.
-- Public push requires scan of tracked content and history; never publish private helper artifacts. Any blocked push is recorded without stopping implementation.
+Blockscout enumerates identities, sender, nonce, indexed block and UTC time. **Every fee and failure status comes from an actual mainnet RPC receipt**, never explorer gas/price/fee fields or advertised max fee. dRPC is primary, then PublicNode/LlamaRPC. Verify chain ID 1, hash, sender and block; parse decimal/hex quantities and compute BigInt gasUsed × effectiveGasPrice in wei. Two individual lookups run concurrently; no RPC batches.
 
-## Milestones
-- Earlier local checkpoints b4986b2 and 1f88f14 preserved blocked-source evidence. They are not passing stages.
-- Restart: branch/status reviewed, note appended, live overrides applied. Source checks in progress. No completed product stage yet.
+If all receipt providers fail, preserve the unverified hash/reason and exclude its unknown fee. Continue enumeration. Resume retries missing receipts without refetching completed history. A failed receipt has a finite provider budget once per calculation; later pages do not multiply it. No approximate explorer fallback is used.
 
-Stage 1 milestone: Coinbase14windows/3815days, explicit pre-May2016 and two internal gaps; dRPC chain1/legacy/dynamic/failed matches; complete small wallet34sent/10failed and empty fixture; existing two paging captures reused. Browser CORS and >10k synthetic continuation belong to following stages.
+Coinbase Exchange ETH-USD UTC daily close is pinned. Request windows shorter than 300 days, filter overlapping/out-of-window buckets, and use eight-decimal fixed-point prices. Round each transaction to cents, half up, then sum those cents for page/CSV/monthly views. Missing prices stay blank and produce incomplete priced subtotals. Today is provisional and never cached as final. Verified coverage starts 2016-05-18 with two early gaps; older days are never guessed.
 
-Stage 2 milestone (`feat: calculate exact wallet gas and historical USD`):20production-core Node tests, observed RED/GREEN for core and review corrections. Captured small/empty CLI replay agrees exact wei and failed subset; missing today price explicit. Independent review fixed atomic partial retention, persisted completeness, immutable duplicates and gap-resolution metadata. EIP7702 conservative warning documented. Stage3UI/CORS and Stage4exports/chart remain. Push gate unchanged: inherited private harness files.
+Capture one as-of UTC/indexed-block cutoff for every wallet in a snapshot. Follow cursors until terminal; detect repeated cursors, immutable-data conflicts and nonce gaps. Nonce gaps can also reflect EIP-7702 authorization, so conservatively flag history rather than assert a definite cap. No arbitrary 10,000-row limit.
 
-Stage3 milestone (`feat: add minimalist wallet gas landing page`):21Node/server checks;8controlled browser groups including review regressions; actual Blockscout/Coinbase/dRPC CORS, live failed+empty and deliberately cancelled2-pageVitalik. Keyboard320px and desktop1440px containment checked. npmdev occupied4317 selected4318 without stopping listener. Required design skills and critique/polish applied; reviewer correction4verified/0incorrect. Private helper publication gate still blocks push. Next:Stage4CSV/monthlychart; other browsers/devices/screenreader unverified.
+Persist versioned validated price data and schema-2 receipt checkpoints atomically. Reject old explorer-based fee snapshots and inconsistent proof/metadata. Corrupt/disabled/full storage cannot destroy in-memory results. Clear-local-data removes only this app's keys. Requests remain paced, cancellable and visible through progress/elapsed time; available rate/reset/Retry-After headers inform finite retries.
 
-Stage4 milestone (`feat: export reconciled gas data and monthly chart`):27Node tests pass, including10001CSVrows; independentPython CSV/Decimal and actualbrowser-downloaded40-record combined fixture reconcile exactwei/ETH/cents/failed/monthly (34transactionrows,28missing). Browser9groups pass. Focused review7verified/0incorrect; optionalaxis-tick refinement deferred (table/tooltips exact). Publication remains local: automaticapproval rejected rebase, directasyncapproval pending; no bypass. Next: finalaudit/freshchecks/hand-off.
+## Interfaces and user states
+
+The shipped `Gas` inline module is exercised directly by Node, not duplicated in a library. Core interfaces are normalizeTransaction with receipt verification, createReceiptClient, fetchWallet, loadPrices, summarize, monthlyTotals and exportCsv. Separate inline UI/export blocks render safe text and validated links.
+
+The landing page explains the concept and centers one wallet box; results follow below. Show ETH/wei, daily USD, failed subset, wallet table, monthly chart and CSV. Distinguish partial history, missing receipts, missing USD and provisional prices. Unknown hashes and missing days remain inspectable. CSV transaction/wallet/monthly/total views reconcile exact amounts; unverified rows have blank money and source/status flags. Failed chart bars remain inside totals, with an exact monthly table alternative.
+
+Required design order applied: minimalist-ui → frontend-design → design-taste-frontend → critique/polish. Warm restrained styling, system fonts, visible keyboard focus and contained narrow-screen table/chart scrolling.
+
+## Stage gates
+
+- [x] 1. Sources: reused original paging evidence; verified all available historical price windows, first public dates, mainnet receipts and failed/empty fixtures. Browser CORS subsequently confirmed.
+- [x] 2. Logic: observed defining RED/GREEN for exact fees/rounding, failed/missing subsets, UTC dates, address/hash deduplication, >10k paging, cancellation/retry/resume and corrupt storage.
+- [x] 3. UI: actual public failed+empty calculation, deliberately cancelled high-volume smoke, accessible recovery states, keyboard and narrow/desktop containment.
+- [x] 4. CSV/chart: exact row/total/failed/monthly reconciliation, missing values and actual browser download; 10,001-row export covered.
+- [x] Receipt authority correction: all fees use actual receipts; schema-2 migration, wrong-chain/identity rejection, fallback, unresolved continuation, duplicate metadata and concurrent provider ordering have defining regressions.
+- [x] Source-refresh correction: seven RED→GREEN controls prevent false success or partial overwrite of historical evidence; prior fixture is preserved until full validated refresh succeeds.
+- [ ] 5. Final delivery: local checks/review/docs complete; publication remains blocked pending trusted integration authorization and a clean candidate scan.
+
+## Milestones and evidence
+
+| Milestone | Local commit | Result |
+| --- | --- | --- |
+| Sources | c18ff15 | Historical windows, receipt samples, explicit gaps and complete public fixtures |
+| Initial engine | 7392ee7 | Exact math, paging/resume/cache and defining tests |
+| Landing UI | 19ff039 | Actual browser CORS, public wallets and recovery checks |
+| CSV/monthly chart | 598d0d7 | Independent downloaded-file/parser reconciliation |
+| Receipt authority | 4bd685b | Actual receipts for every fee; source-refresh integrity; full regression suite |
+| Final handoff | docs: verify wallet gas site and delivery status | Current evidence, delivery gap and morning handoff |
+
+Fresh verification: **38 Node checks, 7 Python controls, 10 controlled browser groups**. All 34 captured public receipts independently match the fixture; CSV exact wei/ETH/cents, failed subset and monthly sums reconcile. Actual public live run at 04:11:09 UTC, block 26303091: 36 sent/10 failed, total 97880651001924672 wei, failed 39629962723545907 wei, zero unverified receipts, USD 256.95 with 30 provisional transactions. Mobile 390×844 had no page overflow; earlier 320px keyboard and 1440px desktop checks passed. All fixtures are below 3 MB. See [verification](../docs/verification.md), [sources](../docs/source-verification.md) and [smoke checks](../docs/smoke-tests.md).
+
+Independent final correction review: 7 verified, 0 incorrect, 1 unresolved (delivery). Content secret-pattern scan has zero matches; it is not exhaustive secret detection. The publication guard still flags three inherited private helper paths.
+
+## Delivery blocker and next action
+
+The last read-only fetch observed externally published night branch **b908654**, with a different UI/receipt implementation. It is not the same tree as local 4bd685b; preserve that work. Earlier local history contains excluded helpers. Automatic approval review rejected a backed-up rebase because authorization came only from review notes; direct trusted approval is pending. No rewrite, force-push or private-wallet query ran. No builder push/deployment is claimed.
+
+After trusted approval, back up private/local work, integrate the authorized core/tests/docs onto the **current** sanitized night history while preserving external UI, rerun appropriate checks and candidate privacy scans, then push normally to that branch only. Otherwise retain verified local commits and disclose the gap. Never bypass the rejection or publish the old private history. The separate private-wallet query is optional diagnosis, not a reinstated reference gate.
+
+## Risks and review notes
+
+Public providers remain trusted dependencies; the page does not verify Merkle proofs or run a node. Index lag/reorgs, every fallback origin's availability and exhaustive independent high-volume history remain unverified. Non-Chromium engines, physical phones and a real screen reader were not tested. The privately relayed wallet anomaly was not queried and is not claimed fixed; generic counterexamples and public receipts are tested. Axis tick labels are an optional visual refinement; exact monthly values/tooltips exist. A fresh calculation or Clear local data safely abandons an old snapshot; future code rollback should use a new commit from a verified baseline, not history rewriting.
 
 ## Future ideas (not tonight's scope)
 - Gas leaderboard with shortened addresses (`0x1234…abcd`). A wallet is listed only after its owner connects MetaMask or Rabby and proves ownership.
@@ -54,14 +75,3 @@ Stage4 milestone (`feat: export reconciled gas data and monthly chart`):27Node t
   - Open question: rank by total ETH, by USD, or by failed-transaction gas.
 - Other currencies via daily FX rates; ENS name input.
 
-## Final correctness revision: receipt authority
-
-Source-field equivalence was verified on samples, not guaranteed for every explorer row. To satisfy the direct receipt-fee contract without that assumption, final delivery will fetch an actual mainnet RPC receipt for every enumerated transaction. Blockscout supplies identity/order/time only; its gas_used/gas_price/fee never determine money. Public historical2015/2022 and all34 smallwallet receipts agree with previous public fixtures; the privately relayed anomaly remains unqueried pending direct authorization. No reference-count gate is reinstated.
-
-- [x] Defining RED/GREEN for explorer gas_used0/maxfee versus actual receipt, null/invalid first RPC→nextRPC, chain/hash/block/status validation, allRPCfailure explicit unverified exclusion, resume retries unresolved only.
-- [x] Bounded per-call receipt lookup (no RPC batch), chain1 pinning, cancellation/retry/progress, schema2 checkpoints reject old explorer-based snapshots.
-- [x] UI/CSV/chart distinguish missing receipts from missing daily USD; unverified hashes remain visible and excluded from known-fee totals. No approximate explorer fallback or guessed fee.
-- [x] Re-run publicfixture live/browser/CSV and fulltests; update source/privacy/retention docs. No privatewalletqueries without approval.
-- [x] Fix historicalsource refresher falsePASS/partialoverwrite with seven defining failure/atomicity tests; preserve existing3815pricefixture.
-
-Receipt-authority correction milestone (`fix: verify every gas fee from mainnet receipts`):38Node checks plus7Python controls,10controlled browser groups, actualpublic36-sent/10-failed run withzero unverifiedreceipts. Independentreview7verified/0incorrect, deliveryonlyunresolved. All34capturedactualreceiptsmatch priorpublicfixture; sourcepricefixtureunchanged. Fixedsamepage immutableduplicates and concurrentRPC fallback ordering with observedRED/GREEN. Unknownfees staylisted/excluded and do notstop paging. No privatequery or originalreporttarget. Readme/source/smoke docs updated in matchingchange.
