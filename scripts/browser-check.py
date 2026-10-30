@@ -12,7 +12,8 @@ print(('[browser]' if args.plain else '🌐')+' Checking controlled browser stat
 fixture=json.loads((root/'fixtures/sources/restart-small-wallet.json').read_text())
 prices=json.loads((root/'fixtures/sources/restart-price-history.json').read_text())
 wallets=json.loads((root/'fixtures/public-wallets.json').read_text())
-script='const fixture='+json.dumps(fixture)+';\nconst prices='+json.dumps(prices['prices'])+';\nconst wallets='+json.dumps(wallets)+';\n'
+receipts=json.loads((root/'fixtures/sources/restart-small-receipts.json').read_text())
+script='const fixture='+json.dumps(fixture)+';\nconst prices='+json.dumps(prices['prices'])+';\nconst wallets='+json.dumps(wallets)+';\nconst receipts='+json.dumps(receipts)+';\n'
 script+=(root/'tests/browser-states.js').read_text().replace('http://127.0.0.1:4317',f'http://127.0.0.1:{args.port}')
 result=subprocess.run(['chrome-devtools-axi','run'],input=script,text=True,capture_output=True,timeout=180)
 if result.returncode:

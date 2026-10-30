@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Exercise the shipped inline engine; this is a verifier, not a runtime dependency.
 import { readFileSync, writeFileSync } from 'node:fs';
-import { Gas } from '../tests/load-core.mjs';
+import { RawGas as Gas } from '../tests/load-core.mjs';
 const args=process.argv.slice(2),plain=args.includes('--plain'),label=plain?'[gas]':'⛽';
 if(args.includes('--help')) {
   console.log(`${label} Wallet gas verification\nUsage: node scripts/wallet-report.mjs --fixture small|empty [--csv PATH] [--plain] [--details]\nReplays captured public data through the production engine without network access.`);
@@ -14,7 +14,9 @@ const wallets=JSON.parse(readFileSync(new URL('../fixtures/public-wallets.json',
 const prices=JSON.parse(readFileSync(new URL('../fixtures/sources/restart-price-history.json',import.meta.url)));
 const address=(name==='small'?wallets.small_failed.address:wallets.empty.address).toLowerCase();
 const items=name==='small'?fixture.response.items:[];
-const history=await Gas.fetchWallet(address,{cutoff:wallets.small_failed.cutoff_block,asOf:wallets.captured_at,request:async()=>({items,next_page_params:null})});
+const receiptData=JSON.parse(readFileSync(new URL('../fixtures/sources/restart-small-receipts.json',import.meta.url)));
+const receipts=new Map(receiptData.receipts.map(row=>[row.hash.toLowerCase(),row.rpc.response.result]));
+const history=await Gas.fetchWallet(address,{cutoff:wallets.small_failed.cutoff_block,asOf:wallets.captured_at,request:async()=>({items,next_page_params:null}),getReceipt:async tx=>({chainId:1,source:'https://eth.drpc.org',receipt:receipts.get(tx.hash.toLowerCase())})});
 const quotes=new Map(Object.entries(prices.prices).map(([day,price])=>[day,{units:Gas.priceToUnits(price),provisional:false}]));
 const rows=Gas.valueRows(history.rows,quotes),total=Gas.summarize(rows);
 console.log(`${label} Captured ${name} wallet; complete sent history at block ${wallets.small_failed.cutoff_block}`);

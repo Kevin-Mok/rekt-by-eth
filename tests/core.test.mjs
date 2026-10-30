@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { Gas, raw, address } from './load-core.mjs';
+import { Gas, raw, address, verificationFor } from './load-core.mjs';
 const fn = name => { assert.equal(typeof Gas[name], 'function', `${name} must be implemented in the inline production core`); return Gas[name]; };
 const fixture = JSON.parse(readFileSync('fixtures/sources/restart-small-wallet.json'));
 const wallet = fixture.response.items[0].from;
@@ -123,7 +123,7 @@ test('terminal gap saves observed fees before reporting incomplete',async()=>{
 });
 test('restored complete checkpoints cannot bypass nonce-gap completeness validation',()=>{
   const row=Gas.normalizeTransaction(raw(2),address);
-  const cp={version:1,address,cutoff:10,asOf:'2026-10-30T00:00:00.000Z',complete:true,cursor:null,rows:[Gas.serializeRow(row)],seen:['{}'],pageCount:1};
+  const cp={version:2,address,cutoff:10,asOf:'2026-10-30T00:00:00.000Z',complete:true,cursor:null,rows:[Gas.serializeRow(row)],unresolved:[],seen:['{}'],pageCount:1};
   assert.throws(()=>Gas.validateCheckpoint(cp,address,10),/checkpoint/i);
 });
 test('same transaction changing its timestamp across pages cannot change daily USD silently',async()=>{
@@ -134,10 +134,11 @@ test('same transaction changing its timestamp across pages cannot change daily U
 test('explicit unconfirmed rows are excluded while malformed confirmed receipts still fail',async()=>{
   const result=await Gas.fetchWallet(address,{cutoff:10,asOf:'2026-10-30T00:00:00.000Z',request:async()=>({items:[raw(2,{block_number:null,status:null,gas_used:null,gas_price:null}),raw(1)],next_page_params:null})});
   assert.equal(result.rows.length,1);assert.equal(result.complete,true);
-  await assert.rejects(Gas.fetchWallet(address,{cutoff:10,asOf:'2026-10-30T00:00:00.000Z',request:async()=>({items:[raw(1,{gas_used:null})],next_page_params:null})}),/receipt/i);
+  const bad=await Gas.fetchWallet(address,{cutoff:10,asOf:'2026-10-30T00:00:00.000Z',request:async()=>({items:[raw(1)],next_page_params:null}),getReceipt:async()=>({...verificationFor(raw(1)),receipt:{...verificationFor(raw(1)).receipt,gasUsed:null}})});
+  assert.equal(bad.rows.length,0);assert.equal(bad.unresolved.length,1);assert.match(bad.unresolved[0].reason,/receipt/i);
 });
 test('completed checkpoints require consistent consumed-page metadata',()=>{
-  const cp={version:1,address,cutoff:10,asOf:'2026-10-30T00:00:00.000Z',complete:true,cursor:null,rows:[],seen:[],pageCount:0};
+  const cp={version:2,address,cutoff:10,asOf:'2026-10-30T00:00:00.000Z',complete:true,cursor:null,rows:[],unresolved:[],seen:[],pageCount:0};
   assert.throws(()=>Gas.validateCheckpoint(cp,address,10),/checkpoint/i);
 });
 test('a nonce-gap snapshot can resolve on resume and its completed snapshot validates again',async()=>{

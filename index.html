@@ -46,7 +46,7 @@ button:disabled{opacity:.55;cursor:wait}.quiet:hover{border-color:var(--field)}
 .count{margin:8px 0 0;color:var(--muted);font-variant-numeric:tabular-nums}.count .failed{color:var(--danger)}
 .more{margin-top:48px;text-align:left;font-size:14px}.more>*+*{margin-top:24px}
 details.plain summary{cursor:pointer;min-height:44px;line-height:44px;display:list-item;color:var(--text)}
-details.plain p{margin:4px 0;color:var(--muted);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#unverified-transactions{margin:4px 0;padding-left:18px;color:var(--muted);overflow-wrap:anywhere}details.plain p{margin:4px 0;color:var(--muted);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 h2.small{font-size:14px;font-weight:600;margin:0 0 8px}
 .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;text-align:left}
 th{font-weight:600;padding:8px 12px 8px 0;border-bottom:1px solid var(--field);white-space:nowrap}td{padding:8px 12px 8px 0;border-bottom:1px solid var(--border);vertical-align:top}
@@ -90,7 +90,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
 <section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-note" class="note"></p>
 <details class="plain"><summary>Monthly values</summary><div class="table-wrap"><table><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">USD</th><th scope="col">Failed USD</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
-<div class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="as-of"></p><p id="usd-detail"></p><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
+<div class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
 </div>
 </section>
 </main>
@@ -100,8 +100,8 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 globalThis.Gas = (() => {
   const WEI = 10n ** 18n, PRICE_SCALE = 10n ** 8n, DAY = 86400000;
   const SOURCE = 'coinbase-eth-usd-close', PRICE_KEY = 'wallet-gas-prices-v1', JOB_KEY = 'wallet-gas-job-v2';
+  const RPC_PROVIDERS = ['https://eth.drpc.org','https://ethereum-rpc.publicnode.com','https://eth.llamarpc.com'];
   const EXPLORER = 'https://eth.blockscout.com/api/v2';
-  const RPCS = ['https://eth.drpc.org','https://rpc.mevblocker.io','https://cloudflare-eth.com','https://eth.meowrpc.com'];
   const addressPattern = /^0x[0-9a-fA-F]{40}$/;
   const hashPattern = /^0x[0-9a-fA-F]{64}$/;
   function parseAddresses(text) {
@@ -124,22 +124,32 @@ globalThis.Gas = (() => {
     return typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) &&
       Number.isFinite(Date.parse(day)) && new Date(day).toISOString().slice(0,10) === day;
   }
-  function normalizeTransaction(tx, address) {
-    const sender = typeof tx.from === 'string' ? tx.from : tx.from?.hash;
-    if (!addressPattern.test(sender || '')) throw new Error('Invalid transaction sender.');
-    if (sender.toLowerCase() !== address.toLowerCase()) return null;
-    if (!hashPattern.test(tx.hash || '')) throw new Error('Invalid transaction hash.');
-    const block = blockNumber(tx.block_number);
-    if (!['ok','error'].includes(tx.status)) throw new Error('Missing finalized receipt status.');
-    const gasUsed = uint(tx.gas_used, 'receipt gasUsed'), gasPrice = uint(tx.gas_price, 'receipt effectiveGasPrice');
-    if (!gasUsed) throw new Error('Invalid receipt gasUsed.');
-    const timestamp = Date.parse(tx.timestamp);
-    if (!Number.isFinite(timestamp) || typeof tx.timestamp !== 'string' || !/T.*(?:Z|[+-]\d\d:\d\d)$/.test(tx.timestamp))
-      throw new Error('Invalid transaction UTC timestamp.');
-    const nonce = uint(tx.nonce, 'transaction nonce');
-    return {hash:tx.hash.toLowerCase(),address:sender.toLowerCase(),block,nonce:nonce.toString(),
-      timestamp:new Date(timestamp).toISOString(),day:new Date(timestamp).toISOString().slice(0,10),
-      gasUsed:gasUsed.toString(),gasPrice:gasPrice.toString(),feeWei:gasUsed*gasPrice,failed:tx.status==='error'};
+  function receiptUint(value,label) {
+    if(typeof value==='number'&&!Number.isSafeInteger(value))throw new Error(`Invalid receipt ${label}.`);
+    if(!/^(?:0x[0-9a-fA-F]{1,80}|[0-9]{1,80})$/.test(String(value)))throw new Error(`Missing or invalid receipt ${label}.`);
+    return BigInt(value);
+  }
+  function transactionMeta(tx,address) {
+    if(!tx||typeof tx!=='object')throw new Error('Malformed transaction metadata.');
+    const sender=typeof tx.from==='string'?tx.from:tx.from?.hash;
+    if(!addressPattern.test(sender||''))throw new Error('Invalid transaction sender.');
+    if(sender.toLowerCase()!==address.toLowerCase())return null;
+    if(!hashPattern.test(tx.hash||''))throw new Error('Invalid transaction hash.');
+    const block=blockNumber(tx.block_number),timestamp=Date.parse(tx.timestamp),nonce=uint(tx.nonce,'transaction nonce');
+    if(!Number.isFinite(timestamp)||typeof tx.timestamp!=='string'||!/T.*(?:Z|[+-]\d\d:\d\d)$/.test(tx.timestamp))throw new Error('Invalid transaction UTC timestamp.');
+    return {hash:tx.hash.toLowerCase(),address:sender.toLowerCase(),block,nonce:nonce.toString(),timestamp:new Date(timestamp).toISOString(),day:new Date(timestamp).toISOString().slice(0,10)};
+  }
+  function normalizeTransaction(tx,address,verification) {
+    const meta=transactionMeta(tx,address);if(!meta)return null;
+    if(verification?.chainId!==1||!RPC_PROVIDERS.includes(verification?.source)||!verification?.receipt)throw new Error('Missing independently verified mainnet receipt.');
+    const receipt=verification.receipt;
+    if(receipt.transactionHash?.toLowerCase()!==meta.hash||receipt.from?.toLowerCase()!==meta.address||
+       receiptUint(receipt.blockNumber,'block number')!==BigInt(meta.block))throw new Error('Receipt identity does not match the enumerated transaction.');
+    const gasUsed=receiptUint(receipt.gasUsed,'gasUsed'),gasPrice=receiptUint(receipt.effectiveGasPrice,'effectiveGasPrice'),status=receiptUint(receipt.status,'status');
+    if(gasUsed===0n||status>1n)throw new Error('Invalid receipt gasUsed or status.');
+    const canonicalReceipt={transactionHash:meta.hash,from:meta.address,blockNumber:meta.block,gasUsed:gasUsed.toString(),effectiveGasPrice:gasPrice.toString(),status:status===1n?'0x1':'0x0'};
+    return {...meta,gasUsed:gasUsed.toString(),gasPrice:gasPrice.toString(),feeWei:gasUsed*gasPrice,failed:status===0n,
+      receiptSource:verification.source,receipt:canonicalReceipt};
   }
   function formatEth(wei) {
     const value = BigInt(wei), fraction = (value % WEI).toString().padStart(18,'0').replace(/0+$/,'');
@@ -184,44 +194,46 @@ globalThis.Gas = (() => {
     result.missingDays = [...days].sort();
     return result;
   }
+  function serializeMeta(row) {
+    return {hash:row.hash,from:row.address,block_number:row.block,nonce:row.nonce,timestamp:row.timestamp};
+  }
   function serializeRow(row) {
-    return {hash:row.hash,from:row.address,block_number:row.block,nonce:row.nonce,timestamp:row.timestamp,
-      gas_used:row.gasUsed,gas_price:row.gasPrice,status:row.failed?'error':'ok',feeWei:row.feeWei.toString()};
+    return {...serializeMeta(row),verification:{chainId:1,source:row.receiptSource,receipt:row.receipt},feeWei:row.feeWei.toString()};
   }
   function cursorKey(cursor) {
-    return JSON.stringify(cursor ? Object.fromEntries(Object.entries(cursor).sort(([a],[b])=>a.localeCompare(b))) : {});
+    return JSON.stringify(cursor?Object.fromEntries(Object.entries(cursor).sort(([a],[b])=>a.localeCompare(b))):{});
   }
   function validateCursor(cursor) {
-    if (cursor === null) return null;
-    if (!cursor || typeof cursor !== 'object' || Array.isArray(cursor) || !Object.keys(cursor).length || Object.keys(cursor).length > 20)
-      throw new Error('Invalid pagination cursor.');
-    for (const [key,value] of Object.entries(cursor)) {
-      if (!/^[a-z_]+$/.test(key) || !['number','string','boolean'].includes(typeof value) || String(value).length > 500 ||
-          (typeof value === 'number' && !Number.isSafeInteger(value))) throw new Error('Invalid pagination cursor fields.');
-    }
+    if(cursor===null)return null;
+    if(!cursor||typeof cursor!=='object'||Array.isArray(cursor)||!Object.keys(cursor).length||Object.keys(cursor).length>20)throw new Error('Invalid pagination cursor.');
+    for(const [key,value]of Object.entries(cursor))if(!/^[a-z_]+$/.test(key)||!['number','string','boolean'].includes(typeof value)||String(value).length>500||
+      (typeof value==='number'&&!Number.isSafeInteger(value)))throw new Error('Invalid pagination cursor fields.');
     return cursor;
   }
   function hasNonceGap(rows) {
-    const nonces = rows.map(row=>BigInt(row.nonce)).sort((a,b)=>a<b?-1:a>b?1:0);
+    const nonces=rows.map(row=>BigInt(row.nonce)).sort((a,b)=>a<b?-1:a>b?1:0);
     return nonces.some((nonce,index)=>nonce!==BigInt(index));
   }
-  function validateCheckpoint(cp, address, cutoff) {
+  function validateCheckpoint(cp,address,cutoff) {
     try {
-      if (cp.version !== 1 || cp.address !== address.toLowerCase() || cp.cutoff !== cutoff ||
-          !Number.isFinite(Date.parse(cp.asOf)) || typeof cp.complete !== 'boolean' || !Array.isArray(cp.rows) ||
-          !Array.isArray(cp.seen) || cp.seen.some(key=>typeof key !== 'string') || !Number.isSafeInteger(cp.pageCount) || cp.pageCount<0)
-        throw Error('schema');
+      if(cp.version!==2||cp.address!==address.toLowerCase()||cp.cutoff!==cutoff||!Number.isFinite(Date.parse(cp.asOf))||typeof cp.complete!=='boolean'||
+        !Array.isArray(cp.rows)||!Array.isArray(cp.unresolved)||!Array.isArray(cp.seen)||cp.seen.some(key=>typeof key!=='string')||!Number.isSafeInteger(cp.pageCount)||cp.pageCount<0)throw Error('schema');
       validateCursor(cp.cursor);
-      if (cp.complete && (cp.cursor !== null || cp.pageCount<1 || cp.seen.length!==cp.pageCount || new Set(cp.seen).size!==cp.seen.length)) throw Error('terminal page metadata');
-      const hashes = new Set();
-      for (const saved of cp.rows) {
-        const row = normalizeTransaction(saved,address);
-        if (!row || row.block>cutoff || row.feeWei.toString() !== saved.feeWei || hashes.has(row.hash)) throw Error('receipt fields');
-        hashes.add(row.hash);
+      if(cp.complete&&(cp.cursor!==null||cp.pageCount<1||cp.seen.length!==cp.pageCount||new Set(cp.seen).size!==cp.seen.length))throw Error('terminal page metadata');
+      const hashes=new Set(),all=[];
+      for(const saved of cp.rows) {
+        const row=normalizeTransaction(saved,address,saved.verification);
+        if(!row||row.block>cutoff||row.feeWei.toString()!==saved.feeWei||hashes.has(row.hash))throw Error('receipt fields');
+        hashes.add(row.hash);all.push(row);
       }
-      if (cp.complete && hasNonceGap(cp.rows)) throw Error('nonce continuity');
+      for(const saved of cp.unresolved) {
+        const meta=transactionMeta(saved,address);
+        if(!meta||meta.block>cutoff||hashes.has(meta.hash)||typeof saved.reason!=='string'||saved.reason.length>1500)throw Error('unverified identity');
+        hashes.add(meta.hash);all.push(meta);
+      }
+      if(cp.complete&&hasNonceGap(all))throw Error('nonce continuity');
       return cp;
-    } catch { throw new Error('Invalid saved checkpoint; clear local data and start a fresh calculation.'); }
+    }catch{throw new Error('Invalid saved checkpoint; clear local data and start a fresh receipt-based calculation.');}
   }
   function checkAbort(signal) { if (signal?.aborted) throw new DOMException('Calculation cancelled.','AbortError'); }
   function sleep(ms, signal) {
@@ -247,16 +259,17 @@ globalThis.Gas = (() => {
     const fetcher=options.fetch || globalThis.fetch, pause=options.sleep || sleep, now=options.now || Date.now,
       random=options.random || Math.random, progress=options.onProgress || (()=>{}), signal=options.signal;
     let nextAt=0;
-    async function get(url) {
-      for(let attempt=0;attempt<5;attempt++) {
+    async function send(url,payload) {
+      const attempts=options.attempts??5;
+      for(let attempt=0;attempt<attempts;attempt++) {
         checkAbort(signal);
         const delay=Math.max(0,nextAt-now());
         if(delay) {progress(`Source pacing: waiting ${Math.ceil(delay/1000)}s. Progress is retained.`);await pause(delay,signal);}
         let response, failure;
-        const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),25000);
+        const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),options.timeout??25000);
         const onAbort=()=>controller.abort(); signal?.addEventListener('abort',onAbort,{once:true});
         try {
-          response=await fetcher(url,{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',headers:{Accept:'application/json'}});
+          response=await fetcher(url,{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',headers:payload?{Accept:'application/json','Content-Type':'application/json'}:{Accept:'application/json'},...(payload?{method:'POST',body:JSON.stringify(payload)}:{})});
           if(response.ok) {
             const body=await response.json();
             nextAt=now()+(options.pace ?? 600);
@@ -270,123 +283,92 @@ globalThis.Gas = (() => {
           if(response && response.status!==429 && response.status<500) throw error;
           failure=error;
         } finally {clearTimeout(timeout);signal?.removeEventListener('abort',onAbort);}
-        if(attempt===4) throw new Error(`${failure.message} Retry budget exhausted; resume your saved calculation.`);
+        if(attempt===attempts-1) throw new Error(`${failure.message} Retry budget exhausted; resume your saved calculation.`);
         const wait=Math.max(1000*2**attempt+Math.floor(random()*400),response?resetDelay(response.headers,now()):0);
-        nextAt=now()+wait;progress(`Source retry ${attempt+1}/4: waiting ${Math.ceil(wait/1000)}s. Cursor retained.`);
+        nextAt=now()+wait;progress(`Source retry ${attempt+1}/${attempts-1}: waiting ${Math.ceil(wait/1000)}s. Cursor retained.`);
         await pause(wait,signal);nextAt=now();
       }
     }
-    return {get};
+    return {get:url=>send(url),post:(url,payload)=>send(url,payload)};
   }
-  // Gas is read ONLY from on-chain receipts. Blockscout can report gas_used 0 and its gas_price is not the effective price.
-  function hexUint(value, label) {
-    if (typeof value !== 'string' || !/^0x[0-9a-fA-F]{1,64}$/.test(value)) throw new Error(`Invalid receipt ${label}.`);
-    return BigInt(value);
-  }
-  function createReceiptReader(options={}) {
-    const fetcher=options.fetch || globalThis.fetch, rpcs=options.rpcs || RPCS, signal=options.signal, pause=options.sleep || sleep,
-      progress=options.onProgress || (()=>{}), cache=new Map();
-    let turn=0;
-    async function ask(url, hash) {
-      const controller=new AbortController(), timeout=setTimeout(()=>controller.abort(),20000);
-      const onAbort=()=>controller.abort(); signal?.addEventListener('abort',onAbort,{once:true});
-      try {
-        const response=await fetcher(url,{method:'POST',signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',
-          headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_getTransactionReceipt',params:[hash]})});
-        if(!response.ok) throw new Error(`HTTP ${response.status}`);
-        const body=await response.json();
-        if(body.error) throw new Error(body.error.message || 'RPC error');
-        const receipt=body.result;
-        if(!receipt) throw new Error('empty receipt');
-        if(String(receipt.transactionHash).toLowerCase()!==hash.toLowerCase()) throw new Error('receipt for another transaction');
-        if(receipt.status!=='0x1' && receipt.status!=='0x0') throw new Error('missing receipt status');
-        const gasUsed=hexUint(receipt.gasUsed,'gasUsed'), gasPrice=hexUint(receipt.effectiveGasPrice,'effectiveGasPrice');
-        if(gasUsed===0n) throw new Error('zero gasUsed');
-        return {gasUsed:gasUsed.toString(),gasPrice:gasPrice.toString(),status:receipt.status==='0x1'?'ok':'error'};
-      } finally {clearTimeout(timeout);signal?.removeEventListener('abort',onAbort);}
+  function createReceiptClient(options={}) {
+    const client=createClient({...options,attempts:2,timeout:12000}),chains=new Map(),receipts=new Map();
+    let preferred=0;
+    async function call(source,method,params) {
+      const body=await client.post(source,{jsonrpc:'2.0',id:1,method,params});
+      if(!body||body.error||!Object.hasOwn(body,'result'))throw new Error('RPC did not return a usable '+method+' result.');
+      return body.result;
     }
-    async function read(hash) {
-      if(!hashPattern.test(hash||'')) throw new Error('Invalid transaction hash.');
-      const key=hash.toLowerCase();
-      if(cache.has(key)) return cache.get(key);
-      let last;
-      for(let round=0;round<3;round++) {
-        for(let i=0;i<rpcs.length;i++) {
-          checkAbort(signal);
-          try { const value=await ask(rpcs[(turn+i)%rpcs.length],key); cache.set(key,value); return value; }
-          catch(error) { checkAbort(signal); last=error; }
-        }
-        progress('Receipt providers are busy; retrying. Progress is retained.');
-        await pause(700*(round+1),signal);
+    async function lookup(tx) {
+      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],startIndex=preferred;
+      for(let offset=0;offset<RPC_PROVIDERS.length;offset++) {
+        checkAbort(options.signal);const index=(startIndex+offset)%RPC_PROVIDERS.length,source=RPC_PROVIDERS[index];
+        try {
+          if(!chains.has(source))chains.set(source,call(source,'eth_chainId',[]).then(chain=>{if(chain!=='0x1')throw new Error('RPC is not Ethereum mainnet.');return true;}));
+          await chains.get(source);
+          const verification={chainId:1,source,receipt:await call(source,'eth_getTransactionReceipt',[tx.hash])};
+          normalizeTransaction(tx,sender,verification);preferred=index;return verification;
+        }catch(error){checkAbort(options.signal);errors.push(new URL(source).hostname+': '+error.message);options.onProgress?.('Receipt source fallback: '+new URL(source).hostname+' could not verify this transaction.');}
       }
-      turn=(turn+1)%rpcs.length;
-      throw new Error(`Receipt for ${key.slice(0,10)}… unavailable on every provider (${last?.message}).`);
+      throw new Error('Receipt unverified after all public RPCs: '+errors.join(' '));
     }
-    return {read};
+    return {getReceipt(tx) {
+      if(!receipts.has(tx.hash))receipts.set(tx.hash,lookup(tx).catch(error=>{receipts.delete(tx.hash);throw error;}));
+      return receipts.get(tx.hash);
+    }};
   }
-  async function fetchWallet(address, options) {
+  async function fetchWallet(address,options) {
     address=parseAddresses(address)[0];
-    const {cutoff,asOf,request,onCheckpoint=()=>{},onProgress=()=>{},signal}=options;
-    blockNumber(cutoff);
-    if (!Number.isFinite(Date.parse(asOf))) throw new Error('Invalid as-of timestamp.');
-    const cp=options.checkpoint ? validateCheckpoint(options.checkpoint,address,cutoff) :
-      {version:1,address,cutoff,asOf,complete:false,cursor:null,rows:[],seen:[],pageCount:0};
-    const rows=new Map(cp.rows.map(saved=>{const row=normalizeTransaction(saved,address);return [row.hash,row];}));
+    const {cutoff,asOf,request,getReceipt,onCheckpoint=()=>{},onProgress=()=>{},signal}=options;
+    blockNumber(cutoff);if(!Number.isFinite(Date.parse(asOf)))throw new Error('Invalid as-of timestamp.');
+    const cp=options.checkpoint?validateCheckpoint(options.checkpoint,address,cutoff):{version:2,address,cutoff,asOf,complete:false,cursor:null,rows:[],unresolved:[],seen:[],pageCount:0};
+    const rows=new Map(cp.rows.map(saved=>{const row=normalizeTransaction(saved,address,saved.verification);return[row.hash,row];})),unresolved=new Map(cp.unresolved.map(saved=>[saved.hash,saved]));
     const seen=new Set(cp.seen);let cursor=cp.cursor,complete=cp.complete,pageCount=cp.pageCount;
-    if(complete) return {rows:[...rows.values()],complete,checkpoint:cp};
-    while(!complete) {
-      checkAbort(signal);
-      const key=cursorKey(cursor);
-      if(seen.has(key)) throw new Error('Repeated source cursor: history is incomplete.');
-      const query=new URLSearchParams({...cursor,filter:'from'});
-      const page=await request(`${EXPLORER}/addresses/${address}/transactions?${query}`);
-      checkAbort(signal);
-      if(!page || !Array.isArray(page.items) || !Object.hasOwn(page,'next_page_params')) throw new Error('Malformed transaction page: history is incomplete.');
-      const next=validateCursor(page.next_page_params);
-      // Commit the entire validated page atomically; a malformed row cannot advance its cursor.
-      const additions=[];
-      const candidates=[];
-      for(const tx of page.items) {
-        if(tx.block_number===null && (tx.status===null || tx.status==='pending')) continue;
-        candidates.push(tx);
-      }
-      // With a receipt reader, fee fields come from on-chain receipts (a few at a time, order preserved).
-      const sources=new Array(candidates.length);
-      let nextIndex=0;
-      const worker=async()=>{
-        while(nextIndex<candidates.length) {
-          const index=nextIndex++, tx=candidates[index];
-          const sender=typeof tx.from==='string'?tx.from:tx.from?.hash;
-          if(!options.receipt || String(sender||'').toLowerCase()!==address || !(Number(tx.block_number)<=cutoff)) {sources[index]=tx;continue;}
-          const receipt=await options.receipt(tx.hash);
-          checkAbort(signal);
-          // The on-chain receipt status is authoritative: Blockscout can show 'ok' for a reverted transaction.
-          sources[index]={...tx,status:receipt.status,gas_used:receipt.gasUsed,gas_price:receipt.gasPrice};
+    function snapshot(){return{version:2,address,cutoff,asOf,complete,cursor,rows:[...rows.values()].map(serializeRow),unresolved:[...unresolved.values()],seen:[...seen],pageCount};}
+    function save(){onCheckpoint(snapshot());}
+    async function resolvePending(pending=[...unresolved.values()]) {let next=0,done=0;
+      async function worker(){
+        while(next<pending.length){
+          checkAbort(signal);const tx=pending[next++];
+          try {
+            if(typeof getReceipt!=='function')throw new Error('No receipt verification source configured.');
+            const verification=await getReceipt(tx),row=normalizeTransaction(tx,address,verification);
+            rows.set(row.hash,row);unresolved.delete(row.hash);
+          }catch(error){checkAbort(signal);unresolved.set(tx.hash,{...tx,reason:String(error.message).slice(0,1500)});}
+          done++;if(done%5===0)save();
+          onProgress({address,count:rows.size+unresolved.size,verified:rows.size,unverified:unresolved.size,pageCount,complete,stage:'receipts',receiptDone:done,receiptTotal:pending.length});
         }
-      };
-      await Promise.all(Array.from({length:Math.min(options.receipt?4:1,candidates.length)},worker));
-      for(const source of sources) {
-        const row=normalizeTransaction(source,address);
-        if(row && row.block<=cutoff) additions.push(row);
       }
-      for(const row of additions) {
-        const previous=rows.get(row.hash);
-        if(previous && JSON.stringify(serializeRow(previous))!==JSON.stringify(serializeRow(row)))
-          throw new Error('Source changed a transaction; start a fresh calculation.');
-        rows.set(row.hash,row);
-      }
-      seen.add(key);cursor=next;complete=next===null;pageCount++;
-      // A nonce gap can indicate capped history; EIP-7702 authorizations can also cause gaps.
-      // Keep this conservative warning explicit rather than silently certify a truncated total.
-      if(complete && hasNonceGap([...rows.values()])) {
-        const partial={version:1,address,cutoff,asOf,complete:false,cursor:null,rows:[...rows.values()].map(serializeRow),seen:[],pageCount:0};
-        onCheckpoint(partial);
-        throw new Error('History may be incomplete: nonce gaps (or EIP-7702 authorizations). Observed fees retained; explorer review needed.');
-      }
-      const snapshot={version:1,address,cutoff,asOf,complete,cursor,rows:[...rows.values()].map(serializeRow),seen:[...seen],pageCount};
-      onCheckpoint(snapshot);onProgress({address,count:rows.size,pageCount,complete});
+      try{await Promise.all(Array.from({length:Math.min(2,pending.length)},()=>worker()));}finally{save();}
     }
-    return {rows:[...rows.values()],complete,checkpoint:{version:1,address,cutoff,asOf,complete,cursor,rows:[...rows.values()].map(serializeRow),seen:[...seen],pageCount}};
+    if(unresolved.size)await resolvePending();
+    while(!complete){
+      checkAbort(signal);const key=cursorKey(cursor);
+      if(seen.has(key))throw new Error('Repeated source cursor: history is incomplete.');
+      const query=new URLSearchParams({...cursor,filter:'from'}),page=await request(`${EXPLORER}/addresses/${address}/transactions?${query}`);
+      checkAbort(signal);
+      if(!page||!Array.isArray(page.items)||!Object.hasOwn(page,'next_page_params'))throw new Error('Malformed transaction page: history is incomplete.');
+      const nextCursor=validateCursor(page.next_page_params),pageIdentities=new Map();
+      for(const tx of page.items){
+        if(tx?.block_number===null&&(tx.status===null||tx.status==='pending'))continue;
+        const meta=transactionMeta(tx,address);if(!meta||meta.block>cutoff)continue;
+        if(Date.parse(meta.timestamp)>Date.parse(asOf))throw new Error('Transaction timestamp is after the snapshot; start a fresh calculation.');
+        const previous=rows.get(meta.hash)||unresolved.get(meta.hash)||pageIdentities.get(meta.hash);
+        if(previous){const old=previous.address?serializeMeta(previous):serializeMeta(transactionMeta(previous,address));
+          if(JSON.stringify(old)!==JSON.stringify(serializeMeta(meta)))throw new Error('Source changed a transaction; start a fresh calculation.');
+        }else pageIdentities.set(meta.hash,meta);
+      }
+      const additions=[...pageIdentities.values()];
+      for(const meta of additions)unresolved.set(meta.hash,{...serializeMeta(meta),reason:'Awaiting independent receipt verification.'});
+      seen.add(key);cursor=nextCursor;complete=nextCursor===null;pageCount++;
+      const gap=complete&&hasNonceGap([...rows.values(),...[...unresolved.values()].map(tx=>transactionMeta(tx,address))]);
+      if(gap){complete=false;cursor=null;seen.clear();pageCount=0;}
+      // Preserve enumerated identities before receipt calls; reload never skips a page or invents a fee.
+      save();await resolvePending(additions.map(meta=>unresolved.get(meta.hash)));
+      onProgress({address,count:rows.size+unresolved.size,verified:rows.size,unverified:unresolved.size,pageCount,complete,stage:'page'});
+      if(gap)throw new Error('History may be incomplete: nonce gaps (or EIP-7702 authorizations). Observed receipts retained; explorer review needed.');
+    }
+    return{rows:[...rows.values()],unresolved:[...unresolved.values()],complete,checkpoint:snapshot()};
   }
   function validatePriceCache(text, now=Date.now()) {
     const result=new Map();
@@ -455,38 +437,39 @@ globalThis.Gas = (() => {
     if (/^[\u0000-\u0020]*[=+@-]/.test(text)) text="'"+text;
     return /[",\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;
   }
-  function monthlyTotals(rows) {
+  function monthlyTotals(rows,unresolved=[]) {
     const groups=new Map();
     for(const row of rows) {
       const month=row.day.slice(0,7);
       if(!groups.has(month))groups.set(month,[]);
       groups.get(month).push(row);
     }
-    return [...groups].sort(([a],[b])=>a.localeCompare(b)).map(([month,items])=>({month,...summarize(items)}));
+    for(const tx of unresolved){const month=tx.timestamp.slice(0,7);if(!groups.has(month))groups.set(month,[]);}
+    return [...groups].sort(([a],[b])=>a.localeCompare(b)).map(([month,items])=>{const unverifiedCount=unresolved.filter(tx=>tx.timestamp.slice(0,7)===month).length;return {month,...summarize(items),unverifiedCount};});
   }
   function exportCsv(rows, metadata) {
-    const {asOf,cutoff,historyComplete,walletCompleteness={}}=metadata;
+    const {asOf,cutoff,historyComplete,walletCompleteness={},unresolved=[]}=metadata;
     if(!Number.isFinite(Date.parse(asOf))||typeof historyComplete!=='boolean')throw new Error('Invalid CSV snapshot metadata.');
     blockNumber(cutoff);
     const addresses=parseAddresses(metadata.addresses.join(','));
     const columns=['record_type','chain_id','as_of_utc','cutoff_block','history_complete','currency','price_source','price_semantics','rounding',
       'wallet','tx_hash','block_number','timestamp_utc','day_utc','month_utc','status','gas_used','effective_gas_price_wei','fee_wei','fee_eth',
       'price_usd_8dp','usd_cents','usd','usd_complete','provisional','sent_count','failed_count','failed_fee_wei','failed_fee_eth',
-      'failed_usd_cents','failed_usd','failed_usd_complete','missing_price_count'];
+      'failed_usd_cents','failed_usd','failed_usd_complete','missing_price_count','receipt_source','verification_status','receipts_complete','unverified_count','verification_note'];
     const common={chain_id:1,as_of_utc:asOf,cutoff_block:cutoff,history_complete:historyComplete,currency:'USD',price_source:SOURCE,
       price_semantics:'UTC daily close; current day provisional',rounding:'8dp price; half-up cents per transaction, then sum'};
     const records=[];
     function aggregate(type,summary,extra={}) {
-      const complete=extra.history_complete??historyComplete;
+      const complete=extra.history_complete??historyComplete,unverifiedCount=extra.unverified_count??unresolved.length;
       return {record_type:type,...common,...extra,fee_wei:summary.wei,fee_eth:formatEth(summary.wei),usd_cents:summary.usdCents,
-        usd:decimalCents(summary.usdCents),usd_complete:complete&&summary.missingCount===0,provisional:summary.provisionalCount>0,
-        sent_count:summary.count,failed_count:summary.failedCount,failed_fee_wei:summary.failedWei,failed_fee_eth:formatEth(summary.failedWei),
-        failed_usd_cents:summary.failedUsdCents,failed_usd:decimalCents(summary.failedUsdCents),failed_usd_complete:complete&&summary.failedMissingCount===0,
-        missing_price_count:summary.missingCount};
+        usd:decimalCents(summary.usdCents),usd_complete:complete&&unverifiedCount===0&&summary.missingCount===0,provisional:summary.provisionalCount>0,
+        sent_count:summary.count+unverifiedCount,failed_count:summary.failedCount,failed_fee_wei:summary.failedWei,failed_fee_eth:formatEth(summary.failedWei),
+        failed_usd_cents:summary.failedUsdCents,failed_usd:decimalCents(summary.failedUsdCents),failed_usd_complete:complete&&unverifiedCount===0&&summary.failedMissingCount===0,
+        missing_price_count:summary.missingCount,receipts_complete:unverifiedCount===0,unverified_count:unverifiedCount};
     }
     records.push({record_type:'metadata',...common,wallet:addresses.join(';')});
     for(const row of [...rows].sort((a,b)=>a.timestamp.localeCompare(b.timestamp)||a.hash.localeCompare(b.hash))) {
-      records.push({record_type:'transaction',...common,wallet:row.address,tx_hash:row.hash,block_number:row.block,timestamp_utc:row.timestamp,
+      records.push({record_type:'transaction',...common,receipt_source:row.receiptSource,verification_status:'verified',receipts_complete:true,unverified_count:0,wallet:row.address,tx_hash:row.hash,block_number:row.block,timestamp_utc:row.timestamp,
         day_utc:row.day,month_utc:row.day.slice(0,7),status:row.failed?'failed':'success',gas_used:row.gasUsed,effective_gas_price_wei:row.gasPrice,
         fee_wei:row.feeWei,fee_eth:formatEth(row.feeWei),price_usd_8dp:row.priceUnits===null?'':decimalPrice(row.priceUnits),
         usd_cents:row.usdCents??'',usd:row.usdCents===null?'':decimalCents(row.usdCents),usd_complete:row.usdCents!==null,provisional:row.provisional,
@@ -494,14 +477,15 @@ globalThis.Gas = (() => {
         failed_usd_cents:row.failed?(row.usdCents??''):0n,failed_usd:row.failed?(row.usdCents===null?'':decimalCents(row.usdCents)):'0.00',
         failed_usd_complete:!row.failed||row.usdCents!==null,missing_price_count:row.usdCents===null?1:0});
     }
+    for(const tx of unresolved)records.push({record_type:'unverified',...common,wallet:tx.from,tx_hash:tx.hash,block_number:tx.block_number,timestamp_utc:tx.timestamp,day_utc:tx.timestamp.slice(0,10),month_utc:tx.timestamp.slice(0,7),verification_status:'unverified',verification_note:tx.reason,receipts_complete:false,unverified_count:1,usd_complete:false,failed_usd_complete:false,sent_count:1});
     for(const address of addresses)records.push(aggregate('wallet_total',summarize(rows.filter(row=>row.address===address)),
-      {wallet:address,history_complete:walletCompleteness[address]??historyComplete}));
-    for(const month of monthlyTotals(rows))records.push(aggregate('monthly_total',month,{month_utc:month.month}));
+      {wallet:address,history_complete:walletCompleteness[address]??historyComplete,unverified_count:unresolved.filter(tx=>tx.from===address).length}));
+    for(const month of monthlyTotals(rows,unresolved))records.push(aggregate('monthly_total',month,{month_utc:month.month,unverified_count:month.unverifiedCount}));
     records.push(aggregate('total',summarize(rows)));
     return columns.join(',')+'\r\n'+records.map(record=>columns.map(column=>csvCell(record[column])).join(',')).join('\r\n')+'\r\n';
   }
   return {WEI,PRICE_SCALE,SOURCE,PRICE_KEY,JOB_KEY,EXPLORER,parseAddresses,normalizeTransaction,formatEth,formatUsd,priceToUnits,
-    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,createReceiptReader,fetchWallet,loadPrices,checkAbort,csvCell,monthlyTotals,exportCsv};
+    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,fetchWallet,loadPrices,checkAbort,csvCell,monthlyTotals,exportCsv,createReceiptClient,RPC_PROVIDERS};
 })();
 </script>
 <script id="gas-ui">
@@ -515,9 +499,9 @@ globalThis.Gas = (() => {
   function persist(){if(!storage||!job)return;try{storage.setItem(G.JOB_KEY,JSON.stringify(job));}catch{storageWarning();}}
   function restore(){
     try {
-      const raw=storage?.getItem(G.JOB_KEY);if(!raw)return;
+      const raw=storage?.getItem(G.JOB_KEY);if(!raw){if(storage?.getItem('wallet-gas-job-v1')){text('storage-note','An earlier snapshot used explorer fee fields. Calculate a fresh snapshot to verify every fee from mainnet receipts.');$('storage-note').hidden=false;}return;}
       const saved=JSON.parse(raw),addresses=G.parseAddresses((saved.addresses||[]).join(','));
-      if(saved.version!==1||saved.chainId!==1||!Number.isSafeInteger(saved.cutoff)||saved.cutoff<0||!saved.wallets||typeof saved.wallets!=='object'||Array.isArray(saved.wallets)||
+      if(saved.version!==2||saved.chainId!==1||!Number.isSafeInteger(saved.cutoff)||saved.cutoff<0||!saved.wallets||typeof saved.wallets!=='object'||Array.isArray(saved.wallets)||
         !Number.isFinite(Date.parse(saved.asOf))||Date.parse(saved.asOf)>Date.now()||Date.now()-Date.parse(saved.asOf)>7*86400000||
         JSON.stringify(addresses)!==JSON.stringify(saved.addresses))throw Error('Saved snapshot is invalid or older than seven days.');
       for(const [address,cp] of Object.entries(saved.wallets)){if(!addresses.includes(address))throw Error('Unexpected saved wallet.');G.validateCheckpoint(cp,address,saved.cutoff);if(cp.asOf!==saved.asOf)throw Error('Contradictory snapshot timestamp.');}
@@ -539,27 +523,34 @@ globalThis.Gas = (() => {
   function observedRows(){
     const rows=new Map();
     if(!job)return [];
-    for(const [address,cp] of Object.entries(job.wallets))for(const saved of cp.rows){const row=G.normalizeTransaction(saved,address);rows.set(row.hash,row);}
+    for(const [address,cp] of Object.entries(job.wallets))for(const saved of cp.rows){const row=G.normalizeTransaction(saved,address,saved.verification);rows.set(row.hash,row);}
     return [...rows.values()].sort((a,b)=>a.timestamp.localeCompare(b.timestamp)||a.hash.localeCompare(b.hash));
   }
+  function unverifiedRows(){return job?Object.values(job.wallets).flatMap(cp=>cp.unresolved):[];}
   function node(tag,content,className){const element=document.createElement(tag);element.textContent=content;if(className)element.className=className;return element;}
-  function render(prices=new Map(),issues=[]){
+  function render(prices=new Map(),issues=[],settled=false){
     if(!job)return;
-    const rows=G.valueRows(observedRows(),prices),total=G.summarize(rows);
+    const rows=G.valueRows(observedRows(),prices),total=G.summarize(rows),unresolved=unverifiedRows(),receiptsComplete=unresolved.length===0;
     const historiesComplete=job.addresses.every(address=>job.wallets[address]?.complete),fiatComplete=!total.missingCount;
     $('results').hidden=false;
     text('as-of',`Snapshot ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,19)} UTC, up to block ${job.cutoff.toLocaleString('en-US')}`);
-    text('completeness',historiesComplete?'History complete':'Partial history');
+    text('completeness',!historiesComplete?'Partial history':receiptsComplete?'History complete':'History complete, some fees unverified');
     const eth=G.formatEth(total.wei),dot=eth.indexOf('.'),cut=dot<0?eth.length:Math.min(eth.length,dot+5);
     $('total-eth').replaceChildren(eth.slice(0,cut));if(cut<eth.length)$('total-eth').append(node('span',eth.slice(cut),'tail'));
-    text('exact-wei',`${total.wei} wei`);
-    text('usd-label',fiatComplete?'':'priced subtotal');$('usd-label').hidden=fiatComplete;
+    text('exact-wei',`${total.wei} wei, exact receipt fees`);
+    const usdPartial=!fiatComplete||!receiptsComplete;text('usd-label',usdPartial?'priced subtotal':'');$('usd-label').hidden=!usdPartial;
     text('count-line',total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?'No sent transactions':'0 transactions so far'));
     text('total-usd',G.formatUsd(total.usdCents));
     text('usd-detail',total.missingCount?`${total.missingCount} unpriced transactions across ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}`:
       total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD at each UTC day’s close');
     text('failed-line',total.failedCount?`, ${total.failedCount} failed (${G.formatEth(total.failedWei)} ETH, ${G.formatUsd(total.failedUsdCents)}${total.failedMissingCount?' priced':''})`:'');
+    const providers=[...new Set(rows.map(row=>new URL(row.receiptSource).hostname))];
+    text('receipt-line',`${rows.length} fees from Ethereum mainnet RPC receipts${providers.length?' ('+providers.join(', ')+')':''}`);
+    $('receipt-details').hidden=receiptsComplete;text('receipt-summary',`${unresolved.length} unverified transaction${unresolved.length===1?'':'s'}`);
+    const unverifiedList=$('unverified-transactions');unverifiedList.replaceChildren();
+    for(const tx of unresolved){const li=document.createElement('li'),link=node('a',tx.hash);link.href=`https://eth.blockscout.com/tx/${tx.hash}`;link.target='_blank';link.rel='noreferrer';li.append(link,node('small',' · '+tx.reason));li.style.overflowWrap='anywhere';unverifiedList.append(li);}
     const notes=[];
+    if(!receiptsComplete)notes.push(`${unresolved.length} transaction${unresolved.length===1?'':'s'} ${settled?'could not be verified':'awaiting receipt verification'}: fees left out of the totals. Press Resume to retry.`);
     if(!historiesComplete)notes.push('Partial history: these totals are missing some transactions. Press Resume to finish.');
     if(total.missingCount)notes.push(`No price for ${total.missingCount} transaction${total.missingCount===1?'':'s'} on ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}: counted in ETH, left out of USD.`);
     
@@ -569,15 +560,15 @@ globalThis.Gas = (() => {
     $('breakdown').hidden=job.addresses.length<2;$('monthly').hidden=!rows.length;
     const body=$('wallet-rows');body.replaceChildren();
     for(const address of job.addresses){
-      const summary=G.summarize(rows.filter(row=>row.address===address)),tr=document.createElement('tr'),cell=document.createElement('td');
+      const summary=G.summarize(rows.filter(row=>row.address===address)),unverified=unresolved.filter(tx=>tx.from===address).length,tr=document.createElement('tr'),cell=document.createElement('td');
       const link=node('a',address.slice(0,8)+'…'+address.slice(-6),'wallet');link.href=`https://eth.blockscout.com/address/${address}`;link.target='_blank';link.rel='noreferrer';link.title=address;link.setAttribute('aria-label',address+' on Ethereum Blockscout');cell.append(link);
-      if(!job.wallets[address]?.complete)cell.append(node('small','Partial','wallet-status'));tr.append(cell,node('td',String(summary.count)));
+      if(!job.wallets[address]?.complete)cell.append(node('small','Partial','wallet-status'));tr.append(cell,node('td',String(summary.count+unverified)));if(unverified)cell.append(node('small',`${unverified} unverified`,'wallet-status'));
       const failed=node('td',String(summary.failedCount),'wallet-failed');failed.append(node('small',G.formatEth(summary.failedWei)+' ETH'));tr.append(failed);
       tr.append(node('td',G.formatEth(summary.wei)));
       const usd=node('td',G.formatUsd(summary.usdCents));if(summary.missingCount)usd.append(node('small',`${summary.missingCount} unpriced · subtotal`));tr.append(usd);body.append(tr);
     }
     // Chart/export attach here in their own verified stage, using these same valued rows.
-    document.dispatchEvent(new CustomEvent('gas-results',{detail:{job,rows,total,historiesComplete}}));
+    document.dispatchEvent(new CustomEvent('gas-results',{detail:{job,rows,total,historiesComplete,unresolved,receiptsComplete}}));
   }
   async function calculate(resume=false){
     let addresses;
@@ -585,7 +576,7 @@ globalThis.Gas = (() => {
     catch(error){$('results').hidden=true;formError(error.message);$('wallets').focus();return;}
     if(controller)return;
     controller=new AbortController();setBusy(true);const signal=controller.signal;
-    const client=G.createClient({signal,onProgress:progress}),receipts=G.createReceiptReader({signal,onProgress:progress});
+    const client=G.createClient({signal,onProgress:progress}),receiptClient=G.createReceiptClient({signal,onProgress:progress});
     const issues=[];let prices=new Map(),activeSnapshot=resume;
     if(!resume)$('results').hidden=true;
     try{
@@ -593,23 +584,23 @@ globalThis.Gas = (() => {
         progress('Finding the latest indexed Ethereum mainnet block…');
         const blocks=await client.get(`${G.EXPLORER}/blocks?type=block`),cutoff=blocks?.items?.[0]?.height;
         if(!Number.isSafeInteger(cutoff)||cutoff<0)throw Error('Could not validate the explorer’s mainnet block cutoff. Try again later.');
-        job={version:1,chainId:1,addresses,cutoff,asOf:new Date().toISOString(),wallets:{}};activeSnapshot=true;persist();
+        job={version:2,chainId:1,addresses,cutoff,asOf:new Date().toISOString(),wallets:{}};activeSnapshot=true;persist();
       }
       $('resume-row').hidden=true;
       for(let index=0;index<job.addresses.length;index++){
         const address=job.addresses[index];G.checkAbort(signal);
         progress(`Wallet ${index+1}/${job.addresses.length}: reading sent transaction history…`);
         try{
-          await G.fetchWallet(address,{cutoff:job.cutoff,asOf:job.asOf,checkpoint:job.wallets[address],signal,request:client.get,receipt:receipts.read,
+          await G.fetchWallet(address,{cutoff:job.cutoff,asOf:job.asOf,checkpoint:job.wallets[address],signal,request:client.get,getReceipt:receiptClient.getReceipt,
             onCheckpoint:cp=>{job.wallets[address]=cp;persist();},
-            onProgress:status=>{progress(`Wallet ${index+1}/${job.addresses.length}: ${status.count.toLocaleString('en-US')} sent transactions · ${status.pageCount} pages${status.complete?' · history complete':''}.`);render();}});
+            onProgress:status=>{progress(`Wallet ${index+1}/${job.addresses.length}: ${status.count.toLocaleString('en-US')} sent · ${status.verified} receipts verified · ${status.pageCount} pages${status.complete?' · history enumerated':''}.`);render();}});
         }catch(error){if(signal.aborted)throw error;issues.push(`${address.slice(0,8)}…${address.slice(-6)}: ${error.message}`);}
       }
       const rows=observedRows();
       prices=await G.loadPrices(rows.map(row=>row.day),{request:client.get,storage,signal,onProgress:progress});
-      render(prices,issues);$('results-title').focus({preventScroll:true});
+      render(prices,issues,true);$('results-title').focus({preventScroll:true});
     }catch(error){
-      if(activeSnapshot&&job){issues.push(signal.aborted?'Calculation cancelled. Validated pages are retained; resume this snapshot to continue.':error.message);render(prices,issues);}
+      if(activeSnapshot&&job){issues.push(signal.aborted?'Calculation cancelled. Validated pages are retained; resume this snapshot to continue.':error.message);render(prices,issues,true);}
       else formError(error.message);
     }finally{controller=null;setBusy(false);persist();}
   }
@@ -618,7 +609,7 @@ globalThis.Gas = (() => {
   $('cancel').addEventListener('click',()=>controller?.abort());
   $('wallets').addEventListener('input',()=>formError(''));
   $('clear-data').addEventListener('click',()=>{
-    try{storage?.removeItem(G.PRICE_KEY);storage?.removeItem(G.JOB_KEY);}catch{storageWarning();return;}
+    try{storage?.removeItem(G.PRICE_KEY);storage?.removeItem(G.JOB_KEY);storage?.removeItem('wallet-gas-job-v1');}catch{storageWarning();return;}
     job=null;showResume();$('results').hidden=true;$('wallets').value='';formError('');text('storage-note','Local wallet snapshots and daily prices cleared.');$('storage-note').hidden=false;$('wallets').focus();
   });
   restore();
@@ -638,12 +629,12 @@ globalThis.Gas = (() => {
   function cell(text) {const td=document.createElement('td');td.textContent=text;return td;}
   function chart(detail) {
     current=detail;
-    const months=G.monthlyTotals(detail.rows),body=$('monthly-rows'),container=$('monthly-chart');body.replaceChildren();container.replaceChildren();
+    const months=G.monthlyTotals(detail.rows,detail.unresolved),body=$('monthly-rows'),container=$('monthly-chart');body.replaceChildren();container.replaceChildren();
         $('chart-note').textContent=detail.total.missingCount?'* Some fees that month have no price.':'';
     for(const month of months) {
       const row=document.createElement('tr');
-      row.append(cell(month.month),cell(month.count.toLocaleString('en-US')),cell(month.missingCount===month.count?'Unpriced':G.formatUsd(month.usdCents)),
-        cell(month.failedCount&&month.failedMissingCount===month.failedCount?'Unpriced':G.formatUsd(month.failedUsdCents)),cell(String(month.missingCount)));
+      row.append(cell(month.month),cell((month.count+month.unverifiedCount).toLocaleString('en-US')),cell(!month.count&&month.unverifiedCount?'Unverified':month.missingCount===month.count?'Unpriced':G.formatUsd(month.usdCents)),
+        cell(month.failedCount&&month.failedMissingCount===month.failedCount?'Unpriced':G.formatUsd(month.failedUsdCents)),cell(String(month.missingCount)),cell(String(month.unverifiedCount)));
       body.append(row);
     }
     if(!months.length) {const p=document.createElement('p');p.className='notice';p.textContent=detail.historiesComplete?'No sent transactions in this snapshot.':'Monthly values appear as validated transactions arrive.';container.append(p);return;}
@@ -669,8 +660,8 @@ globalThis.Gas = (() => {
   document.addEventListener('gas-results',event=>chart(event.detail));
   $('export-csv').addEventListener('click',()=>{
     if(!current)return;
-    const {job,rows,historiesComplete}=current;
-    const csv=G.exportCsv(rows,{asOf:job.asOf,cutoff:job.cutoff,addresses:job.addresses,historyComplete:historiesComplete,
+    const {job,rows,historiesComplete,unresolved}=current;
+    const csv=G.exportCsv(rows,{asOf:job.asOf,cutoff:job.cutoff,addresses:job.addresses,historyComplete:historiesComplete,unresolved,
       walletCompleteness:Object.fromEntries(job.addresses.map(address=>[address,!!job.wallets[address]?.complete]))});
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
     link.href=url;link.download=`wallet-gas-${job.asOf.slice(0,10)}${historiesComplete?'':'-partial'}.csv`;document.body.append(link);link.click();link.remove();

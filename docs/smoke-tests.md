@@ -37,3 +37,13 @@ Use the local static page to check arbitrary wallet input, exact fee totals, mis
 **Action:** Use keyboard-only controls and a narrow320px viewport. Review validation, progress, Cancel, Resume, the About menu (opens, closes with Escape), the wallet table for two or more wallets, and the Details disclosure.
 
 **Expected:** Visible focus, labelled input and announcements, no page-wide horizontal overflow. Wide table scrolls inside its labelled region. Exact ETH/wei values wrap or scale without loss. Reduced-motion preference is respected.
+
+## Receipt authority and missing verification
+
+**Action:** Use the public fixture and inspect the receipt source line, then exercise a controlled RPC failure with the browser check script.
+
+**Expected:** Gas is actual receipt gasUsed × effectiveGasPrice, never explorer gas fields or max fee. An empty/bad first RPC tries another mainnet RPC. If all fail, the hash remains listed, its unknown fee is excluded, history continues, and CSV has an unverified record with blank amounts. Resume retries missing receipts without refetching completed history.
+
+**Action:** Reload with a pre-receipt schema-1 snapshot or a corrupted schema-2 receipt.
+
+**Expected:** Old explorer-derived data cannot be presented as verified. Calculate a fresh snapshot or clear local data; malformed receipt proof is rejected. Already verified schema-2 rows resume without duplicate fees.

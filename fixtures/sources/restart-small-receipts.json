@@ -1,0 +1,1814 @@
+{
+  "retrieved_at": "2026-10-30T03:37:06.199066+00:00",
+  "source": "https://eth.drpc.org",
+  "chain_id": 1,
+  "origin": "http://127.0.0.1:4317",
+  "purpose": "Actual receipts for the already approved public small failed-wallet fixture; original fixture preserved",
+  "complete": true,
+  "receipts": [
+    {
+      "hash": "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:06 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:06.878555+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c",
+            "blockHash": "0x575f081b28d0f27f4e16122fd7ab57852329bb5042568c62d9b0c115be5c2e33",
+            "blockNumber": "0x1915868",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x4e2de",
+            "effectiveGasPrice": "0x25bbce700",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "3243541815775744",
+      "blockscout_projection": {
+        "hash": "0xf3caa183a11c9aebc9c7909d5248588109dc7b83d3187993f429446496ef101c",
+        "block_number": 26302568,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "320222",
+        "gas_price": "10129041152",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x7d2087bdd9f69ac47abbaa734ea429430b2931ba3c358b160114ef56d4409b94",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x7d2087bdd9f69ac47abbaa734ea429430b2931ba3c358b160114ef56d4409b94"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:07 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:07.445440+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x7d2087bdd9f69ac47abbaa734ea429430b2931ba3c358b160114ef56d4409b94",
+            "blockHash": "0x98b08cfb026dda768b376538681de75061a4d220f82843fbd30d74d13c450390",
+            "blockNumber": "0x1915859",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x3496a",
+            "effectiveGasPrice": "0x2539bc657",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "2152437306879750",
+      "blockscout_projection": {
+        "hash": "0x7d2087bdd9f69ac47abbaa734ea429430b2931ba3c358b160114ef56d4409b94",
+        "block_number": 26302553,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "215402",
+        "gas_price": "9992652375",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x7b14e6690ecb4ab196f2e43a780fc4af838126aeec51831c9a69cf382fcde4d4",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x7b14e6690ecb4ab196f2e43a780fc4af838126aeec51831c9a69cf382fcde4d4"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:07 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:08.008392+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x7b14e6690ecb4ab196f2e43a780fc4af838126aeec51831c9a69cf382fcde4d4",
+            "blockHash": "0x77224e59517a56175be4ed6b5dc0064ac25550dcd0a8aec7d48b72c2236dc584",
+            "blockNumber": "0x191584e",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x3572d",
+            "effectiveGasPrice": "0x261a3f104",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "2239179920882100",
+      "blockscout_projection": {
+        "hash": "0x7b14e6690ecb4ab196f2e43a780fc4af838126aeec51831c9a69cf382fcde4d4",
+        "block_number": 26302542,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "218925",
+        "gas_price": "10228068612",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x93dcb47a4db46549087e996946115aeac2438a57449cf2a842c786c711bda755",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x93dcb47a4db46549087e996946115aeac2438a57449cf2a842c786c711bda755"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:08 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:08.650048+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x93dcb47a4db46549087e996946115aeac2438a57449cf2a842c786c711bda755",
+            "blockHash": "0xc79317d5aabbb9d90bda97ff74223c8b9e88b03c406f342f984eb2a1e36ca11e",
+            "blockNumber": "0x1915848",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x34065",
+            "effectiveGasPrice": "0x2165dd831",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "1910417855449941",
+      "blockscout_projection": {
+        "hash": "0x93dcb47a4db46549087e996946115aeac2438a57449cf2a842c786c711bda755",
+        "block_number": 26302536,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "213093",
+        "gas_price": "8965183537",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x4f76712d0de578c063c9cff5e2d6675e211e1b375dd3b94421ded0e24f203daa",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x4f76712d0de578c063c9cff5e2d6675e211e1b375dd3b94421ded0e24f203daa"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:09 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:09.214615+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x4f76712d0de578c063c9cff5e2d6675e211e1b375dd3b94421ded0e24f203daa",
+            "blockHash": "0x665e79b49d2308fd497479be99f321deb0851a332080bcced631f83c28fa606a",
+            "blockNumber": "0x191581f",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x11049",
+            "effectiveGasPrice": "0x1d54e8aa6",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "548833582246230",
+      "blockscout_projection": {
+        "hash": "0x4f76712d0de578c063c9cff5e2d6675e211e1b375dd3b94421ded0e24f203daa",
+        "block_number": 26302495,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "69705",
+        "gas_price": "7873661606",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xb9beea1424fd5839464f29194a9154489a3267e56aac067d32f160adf0c1d567",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xb9beea1424fd5839464f29194a9154489a3267e56aac067d32f160adf0c1d567"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:09 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:09.797225+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xb9beea1424fd5839464f29194a9154489a3267e56aac067d32f160adf0c1d567",
+            "blockHash": "0x665e79b49d2308fd497479be99f321deb0851a332080bcced631f83c28fa606a",
+            "blockNumber": "0x191581f",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "gasUsed": "0x6760",
+            "effectiveGasPrice": "0x1d54e8aa6",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "208368580741184",
+      "blockscout_projection": {
+        "hash": "0xb9beea1424fd5839464f29194a9154489a3267e56aac067d32f160adf0c1d567",
+        "block_number": 26302495,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "26464",
+        "gas_price": "7873661606",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x8855509201afb0be7aa934a7036744298e932bd5fb2bfdfc534082031ea81ac1",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x8855509201afb0be7aa934a7036744298e932bd5fb2bfdfc534082031ea81ac1"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:10 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:10.369132+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x8855509201afb0be7aa934a7036744298e932bd5fb2bfdfc534082031ea81ac1",
+            "blockHash": "0x665e79b49d2308fd497479be99f321deb0851a332080bcced631f83c28fa606a",
+            "blockNumber": "0x191581f",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x17319",
+            "effectiveGasPrice": "0x1dca4c1d6",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "759699469242342",
+      "blockscout_projection": {
+        "hash": "0x8855509201afb0be7aa934a7036744298e932bd5fb2bfdfc534082031ea81ac1",
+        "block_number": 26302495,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "95001",
+        "gas_price": "7996752342",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x154c0f612597fde8b2c12517680734a2833a40c7baf0577371d9bdc22f7a90a0",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x154c0f612597fde8b2c12517680734a2833a40c7baf0577371d9bdc22f7a90a0"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:10 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:10.929166+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x154c0f612597fde8b2c12517680734a2833a40c7baf0577371d9bdc22f7a90a0",
+            "blockHash": "0x665e79b49d2308fd497479be99f321deb0851a332080bcced631f83c28fa606a",
+            "blockNumber": "0x191581f",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "gasUsed": "0xb51c",
+            "effectiveGasPrice": "0x1dca4c1d6",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "370761425584488",
+      "blockscout_projection": {
+        "hash": "0x154c0f612597fde8b2c12517680734a2833a40c7baf0577371d9bdc22f7a90a0",
+        "block_number": 26302495,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "46364",
+        "gas_price": "7996752342",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x84fd92c8682f96f7839e1c617691786b7fc85b5a4397923472f2fb4e8ae80010",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x84fd92c8682f96f7839e1c617691786b7fc85b5a4397923472f2fb4e8ae80010"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:11 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:11.502701+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x84fd92c8682f96f7839e1c617691786b7fc85b5a4397923472f2fb4e8ae80010",
+            "blockHash": "0x599ff7cb8d280c21e30bbf45e299598041486dd982c730684e19453e81cfb141",
+            "blockNumber": "0x191581c",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x15d28",
+            "effectiveGasPrice": "0x1f0e4a54b",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "745148255376056",
+      "blockscout_projection": {
+        "hash": "0x84fd92c8682f96f7839e1c617691786b7fc85b5a4397923472f2fb4e8ae80010",
+        "block_number": 26302492,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "89384",
+        "gas_price": "8336483659",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x80b5ec7e615a503a130b664e1ea33611d55c27782a9effce394c202894da9e18",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x80b5ec7e615a503a130b664e1ea33611d55c27782a9effce394c202894da9e18"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:12 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:12.148065+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x80b5ec7e615a503a130b664e1ea33611d55c27782a9effce394c202894da9e18",
+            "blockHash": "0xb82e3f0b097801c2e3103648b971b6bb858413f8486f20f2cc8b816e9e19b98f",
+            "blockNumber": "0x1915803",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x4f717",
+            "effectiveGasPrice": "0x1c35745e4",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "2464000605832060",
+      "blockscout_projection": {
+        "hash": "0x80b5ec7e615a503a130b664e1ea33611d55c27782a9effce394c202894da9e18",
+        "block_number": 26302467,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "325399",
+        "gas_price": "7572243940",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x7cfd26b2570c0574742b8eaf4a879c5a0096f51073acf31093311d25222665ed",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x7cfd26b2570c0574742b8eaf4a879c5a0096f51073acf31093311d25222665ed"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:12 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:12.715396+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x7cfd26b2570c0574742b8eaf4a879c5a0096f51073acf31093311d25222665ed",
+            "blockHash": "0xd0e5f56c616a0bcbbd9b15b20c44f1201758d7f4bd01c1aee9410a8766a499ec",
+            "blockNumber": "0x1915802",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xbb0e17ef65f82ab018d8edd776e8dd940327b28b",
+            "gasUsed": "0xb579",
+            "effectiveGasPrice": "0x1bbdbfebf",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "345952470201159",
+      "blockscout_projection": {
+        "hash": "0x7cfd26b2570c0574742b8eaf4a879c5a0096f51073acf31093311d25222665ed",
+        "block_number": 26302466,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "46457",
+        "gas_price": "7446724287",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x0df47acee2fc2e2bac088e246e27bc45148f0b5e870768ea088b03431cee7a61",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x0df47acee2fc2e2bac088e246e27bc45148f0b5e870768ea088b03431cee7a61"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:13 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:13.294881+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x0df47acee2fc2e2bac088e246e27bc45148f0b5e870768ea088b03431cee7a61",
+            "blockHash": "0x35a73c23031144e68b6b0b73aff95376fccc57f7f710f9dea9c683443692d6bb",
+            "blockNumber": "0x1915800",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x4706d",
+            "effectiveGasPrice": "0x24b4a0975",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "2866506681366225",
+      "blockscout_projection": {
+        "hash": "0x0df47acee2fc2e2bac088e246e27bc45148f0b5e870768ea088b03431cee7a61",
+        "block_number": 26302464,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "290925",
+        "gas_price": "9853077877",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xcea8119ec0b68a6356ef41a980ef1349ad3c1b30022a82cd0f6a9e63284f62d6",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xcea8119ec0b68a6356ef41a980ef1349ad3c1b30022a82cd0f6a9e63284f62d6"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:13 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:13.857182+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xcea8119ec0b68a6356ef41a980ef1349ad3c1b30022a82cd0f6a9e63284f62d6",
+            "blockHash": "0x437fd76ecf374ef8aadc30d7c0c64b930ddc3ce0fc0cd7581f25952c19fd4007",
+            "blockNumber": "0x19157f0",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xbb0e17ef65f82ab018d8edd776e8dd940327b28b",
+            "gasUsed": "0x742d",
+            "effectiveGasPrice": "0x28fff7eee",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "327324112070614",
+      "blockscout_projection": {
+        "hash": "0xcea8119ec0b68a6356ef41a980ef1349ad3c1b30022a82cd0f6a9e63284f62d6",
+        "block_number": 26302448,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "29741",
+        "gas_price": "11005820654",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x0861bed2cd0a1f70a2c57b99aa8f5c836c3e50c09d7e895ec3c32a413bd70865",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x0861bed2cd0a1f70a2c57b99aa8f5c836c3e50c09d7e895ec3c32a413bd70865"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:14 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:14.421778+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x0861bed2cd0a1f70a2c57b99aa8f5c836c3e50c09d7e895ec3c32a413bd70865",
+            "blockHash": "0x52a2eb04c1c12e7d174b7dc4fde1b0f65a22ff258924589d62edc9070bc4b26b",
+            "blockNumber": "0x19157eb",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xbb0e17ef65f82ab018d8edd776e8dd940327b28b",
+            "gasUsed": "0xc9b9",
+            "effectiveGasPrice": "0x2d065022b",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "624144239711251",
+      "blockscout_projection": {
+        "hash": "0x0861bed2cd0a1f70a2c57b99aa8f5c836c3e50c09d7e895ec3c32a413bd70865",
+        "block_number": 26302443,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "51641",
+        "gas_price": "12086215211",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x68ec757484a6a3fc4469bb36e3a07d1093be8adf7f92b62d95e7515db8c40f70",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x68ec757484a6a3fc4469bb36e3a07d1093be8adf7f92b62d95e7515db8c40f70"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:14 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:14.997224+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x68ec757484a6a3fc4469bb36e3a07d1093be8adf7f92b62d95e7515db8c40f70",
+            "blockHash": "0x52a2eb04c1c12e7d174b7dc4fde1b0f65a22ff258924589d62edc9070bc4b26b",
+            "blockNumber": "0x19157eb",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x2466e",
+            "effectiveGasPrice": "0x2a52daf4d",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "1693973054382358",
+      "blockscout_projection": {
+        "hash": "0x68ec757484a6a3fc4469bb36e3a07d1093be8adf7f92b62d95e7515db8c40f70",
+        "block_number": 26302443,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "149102",
+        "gas_price": "11361169229",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x2e4974b4a1d072853f05a90a8a5a34e4f05497caaf4c122ef6d1647b843135dd",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x2e4974b4a1d072853f05a90a8a5a34e4f05497caaf4c122ef6d1647b843135dd"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:15 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:15.561823+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x2e4974b4a1d072853f05a90a8a5a34e4f05497caaf4c122ef6d1647b843135dd",
+            "blockHash": "0x8217239f2fd9eaef9cbb8da30993321b357e1ad7bdf6c95fd5ca06176e2a7ba8",
+            "blockNumber": "0x19157e5",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x506a8",
+            "effectiveGasPrice": "0x2c7cf13c2",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "3933560245683024",
+      "blockscout_projection": {
+        "hash": "0x2e4974b4a1d072853f05a90a8a5a34e4f05497caaf4c122ef6d1647b843135dd",
+        "block_number": 26302437,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "329384",
+        "gas_price": "11942171586",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xd2f9c6b79b8b5a296b8b056e8259c307d6269417645073f85a1e6c4c59235b41",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xd2f9c6b79b8b5a296b8b056e8259c307d6269417645073f85a1e6c4c59235b41"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:16 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:16.125561+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xd2f9c6b79b8b5a296b8b056e8259c307d6269417645073f85a1e6c4c59235b41",
+            "blockHash": "0x423fd7bf1b31ec87b439f2bc3d66ea8d02ed9e04d625e264ca468643462b071a",
+            "blockNumber": "0x19157b5",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xacddac6c77318b615f7f6fb9bb67c6833e9c05f1",
+            "gasUsed": "0x70459",
+            "effectiveGasPrice": "0x3df5d773d",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "7648633990572085",
+      "blockscout_projection": {
+        "hash": "0xd2f9c6b79b8b5a296b8b056e8259c307d6269417645073f85a1e6c4c59235b41",
+        "block_number": 26302389,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "459865",
+        "gas_price": "16632346429",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x4d0e695aaad5dcebce893c07854dc5ddf02910cc5c666ee9d3355f79a296ba00",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x4d0e695aaad5dcebce893c07854dc5ddf02910cc5c666ee9d3355f79a296ba00"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:16 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:16.698135+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x4d0e695aaad5dcebce893c07854dc5ddf02910cc5c666ee9d3355f79a296ba00",
+            "blockHash": "0xf30e6cb0eb9fcddd6c492264525f1f24df55e2d99eae3299bed87bebbe3d4180",
+            "blockNumber": "0x19157b3",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xfe0c30065b384f05761f15d0cc899d4f9f9cc0eb",
+            "gasUsed": "0xb55e",
+            "effectiveGasPrice": "0x393eddd3e",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "713477799023300",
+      "blockscout_projection": {
+        "hash": "0x4d0e695aaad5dcebce893c07854dc5ddf02910cc5c666ee9d3355f79a296ba00",
+        "block_number": 26302387,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "46430",
+        "gas_price": "15366741310",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x9c45b95f8a694f19d4c48ef8b900b060f51e72758b01999baa5027c825225cd8",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x9c45b95f8a694f19d4c48ef8b900b060f51e72758b01999baa5027c825225cd8"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:17 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:17.266431+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x9c45b95f8a694f19d4c48ef8b900b060f51e72758b01999baa5027c825225cd8",
+            "blockHash": "0x1d018bacd16744dc80d1262c7809bfc150c79feabcb90998b28fe72c952be723",
+            "blockNumber": "0x19157a8",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x2ea8d",
+            "effectiveGasPrice": "0x2b089a819",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "2207735054233541",
+      "blockscout_projection": {
+        "hash": "0x9c45b95f8a694f19d4c48ef8b900b060f51e72758b01999baa5027c825225cd8",
+        "block_number": 26302376,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "191117",
+        "gas_price": "11551746073",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x0ebdb7eb8f294914e2e343f7d884f76388e6563692514976b0f407ddf372aa45",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x0ebdb7eb8f294914e2e343f7d884f76388e6563692514976b0f407ddf372aa45"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:17 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:17.830365+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x0ebdb7eb8f294914e2e343f7d884f76388e6563692514976b0f407ddf372aa45",
+            "blockHash": "0x574303880aaf218cf70b75ff7c442763e46a8448f18cbfd02df765c288019e92",
+            "blockNumber": "0x19157a4",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x45787",
+            "effectiveGasPrice": "0x3d6001c09",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "4688044107618239",
+      "blockscout_projection": {
+        "hash": "0x0ebdb7eb8f294914e2e343f7d884f76388e6563692514976b0f407ddf372aa45",
+        "block_number": 26302372,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "284551",
+        "gas_price": "16475233289",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x77c72d6ac5c73c5110c0b064b58d4733bcb6b8ec0ece3c9012f008b6ddb36142",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x77c72d6ac5c73c5110c0b064b58d4733bcb6b8ec0ece3c9012f008b6ddb36142"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:18 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:18.403840+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x77c72d6ac5c73c5110c0b064b58d4733bcb6b8ec0ece3c9012f008b6ddb36142",
+            "blockHash": "0xae4a19853f69223eaf450950f4fd18604c58ea0c166dad302e29b140ea2d7c41",
+            "blockNumber": "0x191577a",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xec53bf9167f50cdeb3ae105f56099aaab9061f83",
+            "gasUsed": "0xec48",
+            "effectiveGasPrice": "0x2fcc71b33",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "776111949785688",
+      "blockscout_projection": {
+        "hash": "0x77c72d6ac5c73c5110c0b064b58d4733bcb6b8ec0ece3c9012f008b6ddb36142",
+        "block_number": 26302330,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "60488",
+        "gas_price": "12830841651",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xff2f0d4c49bc0b7dc01e08fd303b65045b3477b9a1a0fcbabcc260e3a9a78865",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xff2f0d4c49bc0b7dc01e08fd303b65045b3477b9a1a0fcbabcc260e3a9a78865"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:18 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:18.961656+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xff2f0d4c49bc0b7dc01e08fd303b65045b3477b9a1a0fcbabcc260e3a9a78865",
+            "blockHash": "0x4430b44adcf82973dc3179933fd8bfd7ef09ace3d38865b764a8c1993b62b5f4",
+            "blockNumber": "0x1915773",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x31e28",
+            "effectiveGasPrice": "0x420153b51",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "3620310380692136",
+      "blockscout_projection": {
+        "hash": "0xff2f0d4c49bc0b7dc01e08fd303b65045b3477b9a1a0fcbabcc260e3a9a78865",
+        "block_number": 26302323,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "204328",
+        "gas_price": "17718131537",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xe82820be388b9edf440dabc1c9b2024d6954ed84475649a29289472dd53d3839",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xe82820be388b9edf440dabc1c9b2024d6954ed84475649a29289472dd53d3839"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:19 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:19.536206+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xe82820be388b9edf440dabc1c9b2024d6954ed84475649a29289472dd53d3839",
+            "blockHash": "0xbe50ab48e8e83895f2a149549e3a09a297df2a59875475501ce3a4bd5ec08d5c",
+            "blockNumber": "0x191576c",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x82cfb",
+            "effectiveGasPrice": "0x43c4a3384",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "9746987938951788",
+      "blockscout_projection": {
+        "hash": "0xe82820be388b9edf440dabc1c9b2024d6954ed84475649a29289472dd53d3839",
+        "block_number": 26302316,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "535803",
+        "gas_price": "18191364996",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xaaa17fbe4e986b30cb99c25daec8dfce9421ae749bdfddcd3d355eac579693f8",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xaaa17fbe4e986b30cb99c25daec8dfce9421ae749bdfddcd3d355eac579693f8"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:20 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:20.107330+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xaaa17fbe4e986b30cb99c25daec8dfce9421ae749bdfddcd3d355eac579693f8",
+            "blockHash": "0x733995b6d60e3bfdc65efeab15b94acb7d3fb8263cc653fa42c8815111eec824",
+            "blockNumber": "0x1915769",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x609cd",
+            "effectiveGasPrice": "0x452af27ec",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "7347457699759100",
+      "blockscout_projection": {
+        "hash": "0xaaa17fbe4e986b30cb99c25daec8dfce9421ae749bdfddcd3d355eac579693f8",
+        "block_number": 26302313,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "395725",
+        "gas_price": "18567079916",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x7ac04296bb4be07cfa842914d12e1803068308ad6cfd9a9967ebd1a00a64589e",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x7ac04296bb4be07cfa842914d12e1803068308ad6cfd9a9967ebd1a00a64589e"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:20 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:20.680884+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x7ac04296bb4be07cfa842914d12e1803068308ad6cfd9a9967ebd1a00a64589e",
+            "blockHash": "0xc34f6fd80cdf1d74c6dd889301e8fa8e6ef7fbdf8709e0dee8abde5cb2334fdb",
+            "blockNumber": "0x1915763",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x3daf6",
+            "effectiveGasPrice": "0x288c030a9",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "2750031658069094",
+      "blockscout_projection": {
+        "hash": "0x7ac04296bb4be07cfa842914d12e1803068308ad6cfd9a9967ebd1a00a64589e",
+        "block_number": 26302307,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "252662",
+        "gas_price": "10884231337",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0xd6df3a458ade163a5a558610089d57ae68cfb594640ead07f42523f048aad3e2",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0xd6df3a458ade163a5a558610089d57ae68cfb594640ead07f42523f048aad3e2"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:21 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:21.253917+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0xd6df3a458ade163a5a558610089d57ae68cfb594640ead07f42523f048aad3e2",
+            "blockHash": "0xc34f6fd80cdf1d74c6dd889301e8fa8e6ef7fbdf8709e0dee8abde5cb2334fdb",
+            "blockNumber": "0x1915763",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xd533a949740bb3306d119cc777fa900ba034cd52",
+            "gasUsed": "0xb678",
+            "effectiveGasPrice": "0x288c030a9",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "508424214213944",
+      "blockscout_projection": {
+        "hash": "0xd6df3a458ade163a5a558610089d57ae68cfb594640ead07f42523f048aad3e2",
+        "block_number": 26302307,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "46712",
+        "gas_price": "10884231337",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x3f323a8de6f1bda811530ed18fe6d98c0c0481cd5b7f90aeb39fd74e29285e0e",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x3f323a8de6f1bda811530ed18fe6d98c0c0481cd5b7f90aeb39fd74e29285e0e"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:21 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:21.823626+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x3f323a8de6f1bda811530ed18fe6d98c0c0481cd5b7f90aeb39fd74e29285e0e",
+            "blockHash": "0x91ee45d7bf57062fea88f8b3509f287bd0a850f3e15769b852515d165f670360",
+            "blockNumber": "0x1915757",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x32585",
+            "effectiveGasPrice": "0x38b9890d7",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "3139991630205619",
+      "blockscout_projection": {
+        "hash": "0x3f323a8de6f1bda811530ed18fe6d98c0c0481cd5b7f90aeb39fd74e29285e0e",
+        "block_number": 26302295,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "206213",
+        "gas_price": "15226933463",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x77ac4425e3853c67f1ce2fbb3ad7fd2d167c6f9c0d46c3397fc8a68b13df77ef",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x77ac4425e3853c67f1ce2fbb3ad7fd2d167c6f9c0d46c3397fc8a68b13df77ef"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:22 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:22.393305+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x77ac4425e3853c67f1ce2fbb3ad7fd2d167c6f9c0d46c3397fc8a68b13df77ef",
+            "blockHash": "0x8bf385aecec4fec071a4de66849da2ca02ac84abae3837c55cea640b1acd80cd",
+            "blockNumber": "0x1915755",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x8feab81d36e7576107d5de0758c1b839be31b4f6",
+            "gasUsed": "0x48977",
+            "effectiveGasPrice": "0x38320e621",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "4485260787491415",
+      "blockscout_projection": {
+        "hash": "0x77ac4425e3853c67f1ce2fbb3ad7fd2d167c6f9c0d46c3397fc8a68b13df77ef",
+        "block_number": 26302293,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "297335",
+        "gas_price": "15084873249",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x1ba0e28ff7e6f491c58e1258e43e5b91e43f490ce2cd5f36fabb8902f8f54d6a",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x1ba0e28ff7e6f491c58e1258e43e5b91e43f490ce2cd5f36fabb8902f8f54d6a"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:23 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:23.038333+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x1ba0e28ff7e6f491c58e1258e43e5b91e43f490ce2cd5f36fabb8902f8f54d6a",
+            "blockHash": "0xcb49f61cfa198fe674430aa78e07b20cda2b4089f7e3add1fb09799a5cccd9a5",
+            "blockNumber": "0x167662b",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xea7e4441159d352b1cf10f4a4454d93a77aa8825",
+            "gasUsed": "0x5208",
+            "effectiveGasPrice": "0x5e841ae3",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "33300034719000",
+      "blockscout_projection": {
+        "hash": "0x1ba0e28ff7e6f491c58e1258e43e5b91e43f490ce2cd5f36fabb8902f8f54d6a",
+        "block_number": 23553579,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "21000",
+        "gas_price": "1585715939",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x56887be966e3024fffde3f3c165e015bbf9bf58f8423f826ad36cc8c073cf858",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x56887be966e3024fffde3f3c165e015bbf9bf58f8423f826ad36cc8c073cf858"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:23 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:23.631130+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x56887be966e3024fffde3f3c165e015bbf9bf58f8423f826ad36cc8c073cf858",
+            "blockHash": "0x1a765fd5471b56f5970a4eacce518b7f0ec836f370f4afb5674046e2fcbd6f6f",
+            "blockNumber": "0x1676628",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xda5e1988097297dcdc1f90d4dfe7909e847cbef6",
+            "gasUsed": "0x13c51",
+            "effectiveGasPrice": "0x5ffa8ea9",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "130393703432057",
+      "blockscout_projection": {
+        "hash": "0x56887be966e3024fffde3f3c165e015bbf9bf58f8423f826ad36cc8c073cf858",
+        "block_number": 23553576,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "80977",
+        "gas_price": "1610256041",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x22c1f992ad4ba59f9838f39434c3cb4effac184bcafbea05147db84849b1130d",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x22c1f992ad4ba59f9838f39434c3cb4effac184bcafbea05147db84849b1130d"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:24 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:24.515942+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x22c1f992ad4ba59f9838f39434c3cb4effac184bcafbea05147db84849b1130d",
+            "blockHash": "0x8d8fd7012e2132298d9cef10f6714a5c0ea52827b2a12f1b89095fc509b4fb7e",
+            "blockNumber": "0x16757f7",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x2e1dee213ba8d7af0934c49a23187babeaca8764",
+            "gasUsed": "0x8858c",
+            "effectiveGasPrice": "0x66ce90706",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "15412270431860040",
+      "blockscout_projection": {
+        "hash": "0x22c1f992ad4ba59f9838f39434c3cb4effac184bcafbea05147db84849b1130d",
+        "block_number": 23549943,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "558476",
+        "gas_price": "27597014790",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x691be5c01563087d9ddd1fea0d60e72a80c953505d032bd07f437eb361ad689a",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x691be5c01563087d9ddd1fea0d60e72a80c953505d032bd07f437eb361ad689a"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:25 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:25.117804+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x691be5c01563087d9ddd1fea0d60e72a80c953505d032bd07f437eb361ad689a",
+            "blockHash": "0x927bfdafe276035d754715644e78763cd5a7c32ba2a8c2f222b134b201b203ab",
+            "blockNumber": "0x1675784",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x2e1dee213ba8d7af0934c49a23187babeaca8764",
+            "gasUsed": "0x4ae2d",
+            "effectiveGasPrice": "0x3a6bdb84a",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "4810295252070658",
+      "blockscout_projection": {
+        "hash": "0x691be5c01563087d9ddd1fea0d60e72a80c953505d032bd07f437eb361ad689a",
+        "block_number": 23549828,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "306733",
+        "gas_price": "15682353226",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:25 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:25.718173+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d",
+            "blockHash": "0xdfa70b2c027eecf7e6df57f0f1e07e5bc3f3365ad73278949a893f2e27294aa5",
+            "blockNumber": "0x1675664",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0x2e1dee213ba8d7af0934c49a23187babeaca8764",
+            "gasUsed": "0x96b2d",
+            "effectiveGasPrice": "0x13b8c9290",
+            "status": "0x0",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "3267801708491600",
+      "blockscout_projection": {
+        "hash": "0x42c468ea35954fcdcaa129b85c4a697bd5bf6c6c53b959d192367f9c2981de9d",
+        "block_number": 23549540,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "617261",
+        "gas_price": "5294035600",
+        "status": "error",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    },
+    {
+      "hash": "0x3cd6fec68b8ebffa93cc5b4f87f81c9d4b854cbfc9604d1c72b979beefb8c42f",
+      "rpc": {
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "eth_getTransactionReceipt",
+          "params": [
+            "0x3cd6fec68b8ebffa93cc5b4f87f81c9d4b854cbfc9604d1c72b979beefb8c42f"
+          ]
+        },
+        "http_status": "200",
+        "headers": {
+          "date": "Fri, 30 Oct 2026 03:37:26 GMT",
+          "content-type": "application/json",
+          "access-control-allow-origin": "*"
+        },
+        "retrieved_at": "2026-10-30T03:37:26.315222+00:00",
+        "response": {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "transactionHash": "0x3cd6fec68b8ebffa93cc5b4f87f81c9d4b854cbfc9604d1c72b979beefb8c42f",
+            "blockHash": "0x2f1f17307870a4bf05aba875819ad5ef865f65e50d62f57c71ba9098a22d1159",
+            "blockNumber": "0x1675657",
+            "from": "0x12d5a3b546f1033da79c0bbb0f6db2c6b230b9a8",
+            "to": "0xda5e1988097297dcdc1f90d4dfe7909e847cbef6",
+            "gasUsed": "0xeb7b",
+            "effectiveGasPrice": "0x1b6e132c5",
+            "status": "0x1",
+            "type": "0x2",
+            "root": null
+          }
+        }
+      },
+      "fee_wei": "443874532015015",
+      "blockscout_projection": {
+        "hash": "0x3cd6fec68b8ebffa93cc5b4f87f81c9d4b854cbfc9604d1c72b979beefb8c42f",
+        "block_number": 23549527,
+        "from": "0x12d5a3b546F1033Da79C0bbb0F6dB2c6B230B9a8",
+        "gas_used": "60283",
+        "gas_price": "7363179205",
+        "status": "ok",
+        "type": 2
+      },
+      "comparison": {
+        "gas_used_match": true,
+        "effective_price_match": true,
+        "status_match": true,
+        "fee_match": true
+      }
+    }
+  ],
+  "chain": {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "eth_chainId",
+      "params": []
+    },
+    "http_status": "200",
+    "headers": {
+      "date": "Fri, 30 Oct 2026 03:37:06 GMT",
+      "content-type": "application/json",
+      "access-control-allow-origin": "*"
+    },
+    "retrieved_at": "2026-10-30T03:37:06.309448+00:00",
+    "response": {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": "0x1"
+    }
+  },
+  "actual": {
+    "sent": 34,
+    "failed": 10,
+    "fee_wei": "96164252494628845",
+    "failed_fee_wei": "39629962723545907"
+  },
+  "original_expected": {
+    "sent": 34,
+    "failed": 10,
+    "fee_wei": "96164252494628845",
+    "failed_fee_wei": "39629962723545907",
+    "first_transaction_utc": "2025-10-10T19:51:23.000000Z",
+    "last_transaction_utc": "2026-10-30T02:25:47.000000Z",
+    "cutoff_block": 26302568
+  },
+  "differences": []
+}

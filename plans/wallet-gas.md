@@ -53,3 +53,15 @@ Stage4 milestone (`feat: export reconciled gas data and monthly chart`):27Node t
   - Integrity: the board uses the same receipts-only totals as the main page, recomputed on the server, never numbers sent by the browser.
   - Open question: rank by total ETH, by USD, or by failed-transaction gas.
 - Other currencies via daily FX rates; ENS name input.
+
+## Final correctness revision: receipt authority
+
+Source-field equivalence was verified on samples, not guaranteed for every explorer row. To satisfy the direct receipt-fee contract without that assumption, final delivery will fetch an actual mainnet RPC receipt for every enumerated transaction. Blockscout supplies identity/order/time only; its gas_used/gas_price/fee never determine money. Public historical2015/2022 and all34 smallwallet receipts agree with previous public fixtures; the privately relayed anomaly remains unqueried pending direct authorization. No reference-count gate is reinstated.
+
+- [x] Defining RED/GREEN for explorer gas_used0/maxfee versus actual receipt, null/invalid first RPC→nextRPC, chain/hash/block/status validation, allRPCfailure explicit unverified exclusion, resume retries unresolved only.
+- [x] Bounded per-call receipt lookup (no RPC batch), chain1 pinning, cancellation/retry/progress, schema2 checkpoints reject old explorer-based snapshots.
+- [x] UI/CSV/chart distinguish missing receipts from missing daily USD; unverified hashes remain visible and excluded from known-fee totals. No approximate explorer fallback or guessed fee.
+- [x] Re-run publicfixture live/browser/CSV and fulltests; update source/privacy/retention docs. No privatewalletqueries without approval.
+- [x] Fix historicalsource refresher falsePASS/partialoverwrite with seven defining failure/atomicity tests; preserve existing3815pricefixture.
+
+Receipt-authority correction milestone (`fix: verify every gas fee from mainnet receipts`):38Node checks plus7Python controls,10controlled browser groups, actualpublic36-sent/10-failed run withzero unverifiedreceipts. Independentreview7verified/0incorrect, deliveryonlyunresolved. All34capturedactualreceiptsmatch priorpublicfixture; sourcepricefixtureunchanged. Fixedsamepage immutableduplicates and concurrentRPC fallback ordering with observedRED/GREEN. Unknownfees staylisted/excluded and do notstop paging. No privatequery or originalreporttarget. Readme/source/smoke docs updated in matchingchange.
