@@ -1,4 +1,6 @@
-# Ethereum wallet gas spending
+# rektbyeth.lol
+
+**How rekt are you on gas? Paste your wallet, see the damage in ETH and USD. Failed txs too. It hurts.** Live at [rektbyeth.lol](https://rektbyeth.lol).
 
 See what one or more Ethereum wallets paid to use the network, including failed transactions. This read-only static page combines exact receipt fees with historical daily ETH/USD prices, keeps missing data explicit, and preserves interrupted calculations locally. It is built for wallet owners who want an auditable answer without connecting a wallet or handing over credentials.
 
