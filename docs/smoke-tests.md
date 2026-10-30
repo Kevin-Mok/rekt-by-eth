@@ -34,6 +34,6 @@ Use the local static page to check arbitrary wallet input, exact fee totals, mis
 
 ## Accessibility and narrow screens
 
-**Action:** Use keyboard-only controls and a narrow320px viewport. Review validation, progress, Cancel, Resume, source links, wallet table and method details.
+**Action:** Use keyboard-only controls and a narrow320px viewport. Review validation, progress, Cancel, Resume, the About menu (opens, closes with Escape), the wallet table for two or more wallets, and the Details disclosure.
 
 **Expected:** Visible focus, labelled input and announcements, no page-wide horizontal overflow. Wide table scrolls inside its labelled region. Exact ETH/wei values wrap or scale without loss. Reduced-motion preference is respected.

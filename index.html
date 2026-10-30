@@ -2,40 +2,83 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
-<meta name="description" content="See what your Ethereum wallets spent on gas, including failed transactions, in ETH and historical daily USD.">
-<title>Wallet gas — Ethereum mainnet</title>
+<meta name="description" content="How much gas an Ethereum mainnet wallet has spent, in ETH and in USD at each transaction day's close.">
+<title>Wallet gas</title>
 <style>
-:root{color-scheme:light;--paper:#f7f6f3;--surface:#fffefa;--ink:#272925;--muted:#62665d;--line:#dedfd8;--green:#385b43;--red:#963b32;--pale:#f7ebe7;--space:clamp(20px,4vw,48px)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.6}a{color:inherit;text-underline-offset:4px}button,textarea{font:inherit}button,a,summary{touch-action:manipulation}button{min-height:46px;padding:10px 20px;border:1px solid var(--ink);border-radius:5px;background:var(--ink);color:var(--surface);font-weight:600;cursor:pointer;transition:background .15s}button:hover{background:#41463d}button:active{transform:translateY(1px)}button:disabled{opacity:.5;cursor:wait}.secondary{background:transparent;color:var(--ink);border-color:var(--line)}.secondary:hover{background:#e9eae3}.text-button{padding:8px 0;border:0;background:transparent;color:var(--muted);font-weight:400;text-decoration:underline;text-underline-offset:4px}.text-button:hover{background:transparent;color:var(--ink)}:focus-visible{outline:3px solid var(--green);outline-offset:5px}[hidden]{display:none!important}.wrap{max-width:1120px;margin:auto;padding:0 var(--space);min-width:0}.top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:32px}.wordmark{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.03em;font-size:19px;text-decoration:none}.wordmark svg{width:19px;height:28px}.network{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.intro{max-width:720px;margin:84px auto 0;text-align:center}.eyebrow{color:var(--green);font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,6vw,66px);line-height:1.08;font-weight:400;letter-spacing:-.045em;margin:20px 0 24px}h1 em{font-weight:400;color:var(--green)}.lede{max-width:540px;margin:0 auto;color:var(--muted);font-size:18px;line-height:1.65}.input-area{max-width:720px;margin:36px auto 0}.input-box{border:1px solid #b9bdb2;border-radius:8px;background:var(--surface);padding:20px}.input-label{display:block;font-weight:600;font-size:14px;margin-bottom:10px}textarea{display:block;width:100%;height:80px;resize:vertical;min-height:76px;max-height:300px;border:0;padding:0;background:transparent;color:var(--ink);font-size:16px;line-height:1.65;overflow-wrap:anywhere}textarea::placeholder{color:#858a7f}textarea:focus{outline:0}textarea:focus-visible{outline:2px solid var(--green);outline-offset:5px;border-radius:2px}.input-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px}.hint{font-size:12px;color:var(--muted);max-width:330px;line-height:1.5}.privacy-line{text-align:center;font-size:12px;color:var(--muted);margin:14px 0}.form-error{margin:12px 0 0;color:var(--red);font-size:14px}.resume-row{margin-top:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.resume-row p{font-size:13px;color:var(--muted);flex:1;margin:0}.progress-area{margin-top:24px;padding:16px 0;border-top:1px solid var(--line);display:flex;align-items:flex-start;gap:16px}.progress-copy{flex:1;min-width:0}.progress-copy p{margin:0;font-size:14px}.elapsed{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.notice{color:var(--muted);font-size:13px}.storage-note{margin-top:8px}.results{margin-top:72px;padding-top:28px;border-top:1px solid var(--ink);scroll-margin-top:24px}.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:28px}.section-head h2{margin:0;font-size:26px;letter-spacing:-.04em;font-weight:500;line-height:1.3}.metadata{font-size:12px;color:var(--muted);max-width:650px;margin:8px 0 0;overflow-wrap:anywhere}.tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--green);white-space:nowrap}.tag:before{content:"";width:6px;height:6px;background:currentColor;border-radius:50%}.tag.partial{color:var(--red)}.metrics{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;margin:24px 0 20px}.metric{min-width:0}.metric+ .metric{border-left:1px solid var(--line);padding-left:32px}.metric-label{font-size:13px;color:var(--muted)}.metric-value{display:block;font-size:clamp(30px,4.5vw,48px);font-weight:450;letter-spacing:-.055em;line-height:1.25;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;margin-top:8px}.unit{font-size:18px;color:var(--muted);letter-spacing:-.02em}.exact{display:block;font-size:11px;color:var(--muted);margin-top:10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.failed-line{border-left:2px solid var(--red);padding:8px 0 8px 16px;color:var(--red);font-size:14px;margin:28px 0 8px}.failed-line strong{font-weight:600}.quality{font-size:13px;color:var(--muted);margin:12px 0 0}.quality.warning{background:var(--pale);color:var(--red);padding:12px 16px;border-radius:4px}.missing-details{font-size:13px;color:var(--muted);margin:12px 0}.missing-details summary{cursor:pointer;min-height:44px}.missing-details p{overflow-wrap:anywhere}.result-sources{font-size:12px;color:var(--muted);margin:18px 0 30px}.table-wrap{overflow:auto;max-width:100%;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;font-variant-numeric:tabular-nums}caption{text-align:left;font-size:18px;letter-spacing:-.02em;padding:20px 0 14px;font-weight:500}th{font-weight:500;font-size:12px;color:var(--muted);padding:14px 16px 14px 0;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:18px 16px 18px 0;border-bottom:1px solid var(--line);vertical-align:top}tbody tr:last-child td{border-bottom:0}td:last-child,th:last-child{padding-right:0;text-align:right}td small{display:block;font-size:11px;color:var(--muted);margin-top:4px;max-width:250px}.wallet{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;white-space:nowrap;display:inline-flex;min-height:44px;align-items:center}.wallet-status{font-family:inherit!important;white-space:normal}.wallet-failed{color:var(--red)}.table-note{font-size:12px;color:var(--muted)}.method{margin:88px 0 56px;border-top:1px solid var(--line);padding-top:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:48px}.method h2{font-size:20px;font-weight:500;letter-spacing:-.03em;margin:0}.method p{font-size:14px;color:var(--muted);margin:0 0 16px}.method details{border-top:1px solid var(--line);padding:12px 0;font-size:14px}.method summary{cursor:pointer;min-height:44px}.method details p{margin:12px 0 0;font-size:13px}.footer{border-top:1px solid var(--line);padding:20px 0 28px;display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--muted);font-size:12px}.footer button{font-size:12px}.no-script{padding:20px;background:var(--pale)}
-.result-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap}.result-actions button{font-size:13px}.monthly-section{margin-top:52px}.monthly-heading{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap}.monthly-heading h3{font-size:22px;font-weight:500;letter-spacing:-.035em;margin:0}.monthly-heading p{font-size:12px;color:var(--muted);margin:0}.chart-legend{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;margin:18px 0 8px}.legend-swatch{display:inline-block;width:10px;height:10px;background:#64765f;border-radius:1px}.legend-swatch.failed{margin-left:16px;background:var(--red)}.chart-scroll{max-width:100%;overflow:auto}.chart-scroll svg{display:block;width:100%;min-width:540px;height:auto}.monthly-details{font-size:14px;border-top:1px solid var(--line);margin-top:20px;padding-top:12px}.monthly-details summary{cursor:pointer;min-height:44px}.monthly-details td,.monthly-details th{font-size:13px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:650px){.top{padding-top:20px}.network{font-size:10px;max-width:100px;text-align:right}.intro{margin-top:56px}h1{margin-bottom:20px}.lede{font-size:16px}.input-area{margin-top:28px}.input-box{padding:16px}.input-actions{align-items:stretch;flex-direction:column;gap:14px}.hint{max-width:none;font-size:14px}.input-actions button{width:100%}.privacy-line{font-size:11px}.results{margin-top:48px}.section-head{gap:14px;flex-wrap:wrap}.section-head h2{font-size:24px}.metrics{grid-template-columns:minmax(0,1fr);gap:24px}.metric+ .metric{border-left:0;padding:20px 0 0;border-top:1px solid var(--line)}.metric-value{font-size:clamp(22px,6vw,36px)}.exact{font-size:12px}.method{margin-top:64px;grid-template-columns:minmax(0,1fr);gap:20px}.metadata{font-size:12px}.table-wrap{margin-bottom:8px}table{min-width:650px}.footer{align-items:flex-start}.footer span{max-width:180px}.progress-area{gap:10px}.progress-area button{padding:8px 12px}.resume-row button{width:100%}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button{transition:none}}
+:root{color-scheme:light;--bg:#fff;--ink:#111;--muted:#595959;--line:#ddd;--accent:#1d4ed8;--red:#b3261e;--pale:#fdf0ef}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent);text-underline-offset:3px}button,textarea{font:inherit}[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px}
+.top{display:flex;justify-content:space-between;align-items:center;height:56px;border-bottom:1px solid var(--line)}
+.name{font-weight:700;color:var(--ink);text-decoration:none}
+.menu{position:relative}.menu summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;color:var(--ink)}
+.menu summary::-webkit-details-marker{display:none}.menu svg{width:20px;height:20px}
+.menu-panel{position:absolute;right:0;top:48px;z-index:5;width:min(360px,calc(100vw - 40px));background:#fff;border:1px solid var(--ink);padding:16px 20px;font-size:14px}
+.menu-panel h2{font-size:14px;margin:16px 0 4px}.menu-panel h2:first-child{margin-top:0}.menu-panel p{margin:0;color:var(--muted)}
+.ask{text-align:center;padding:72px 0 24px}h1{font-size:clamp(28px,6vw,40px);line-height:1.15;margin:0 0 32px;font-weight:700;letter-spacing:-.02em}
+form{display:flex;flex-direction:column;gap:12px;text-align:left}
+textarea{width:100%;min-height:52px;height:52px;resize:vertical;padding:13px 12px;border:1px solid #767676;border-radius:4px;font:15px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);overflow-wrap:anywhere}
+textarea[aria-invalid=true]{border-color:var(--red)}
+button{min-height:44px;padding:10px 18px;border:1px solid var(--ink);border-radius:4px;background:var(--ink);color:#fff;font-weight:600;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}.quiet{background:#fff;color:var(--ink);border-color:var(--line)}
+.link{min-height:44px;padding:0;border:0;background:none;color:var(--accent);font-weight:400;text-decoration:underline;text-underline-offset:3px}
+.form-error,.flag{margin:0;color:var(--red);font-size:14px}.flag{background:var(--pale);padding:10px 12px;border-radius:4px;margin-top:16px;text-align:left}
+.row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.state{margin-top:16px;text-align:left}.state p{margin:0}
+.results{padding:24px 0 64px;text-align:center}.results:focus{outline:0}
+.hero{display:block;font-size:clamp(44px,13vw,72px);font-weight:700;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.hero .tail{font-size:clamp(13px,3.8vw,22px);margin-left:1px;font-weight:400;color:var(--muted);letter-spacing:0}.hero .unit{font-size:clamp(20px,5.8vw,32px);font-weight:600}
+.usd{display:block;font-size:28px;font-weight:600;margin-top:8px;font-variant-numeric:tabular-nums}.usd small{font-size:14px;font-weight:400;color:var(--red)}
+.count{margin:12px 0 0;color:var(--muted)}.count .failed{color:var(--red)}
+.more{margin-top:40px;text-align:left;font-size:14px}.more>*+*{margin-top:24px}
+details.plain summary{cursor:pointer;min-height:44px;line-height:44px;display:list-item;color:var(--ink)}
+details.plain p{margin:4px 0;color:var(--muted);overflow-wrap:anywhere}
+h2.small{font-size:14px;font-weight:600;margin:0 0 8px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;text-align:left}
+th{font-weight:600;padding:8px 12px 8px 0;border-bottom:1px solid var(--ink);white-space:nowrap}td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:block;color:var(--muted)}
+.wallet{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;display:inline-flex;min-height:32px;align-items:center}.wallet-failed{color:var(--red)}
+.chart-legend{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;margin:0 0 4px}.legend-swatch{width:10px;height:10px;background:#555}.legend-swatch.failed{margin-left:12px;background:var(--red)}
+.chart-scroll{overflow:auto}.chart-scroll svg{display:block;width:100%;min-width:480px;height:auto}.note{color:var(--muted);font-size:12px;margin:4px 0 0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:480px){.ask{padding-top:48px}.menu .label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top"><a class="wordmark" href="#"><svg viewBox="0 0 24 36" fill="none" aria-hidden="true"><path d="M12 1 1 18l11 6 11-6L12 1Z" stroke="currentColor" stroke-width="1.3"/><path d="M1 22l11 13 11-13-11 6-11-6Z" fill="currentColor"/><path d="M12 1v23M1 18l11-5 11 5" stroke="currentColor" stroke-width="1.1"/></svg>Wallet gas</a><span class="network">Ethereum mainnet only</span></header>
+<header class="top"><a class="name" href="./">Wallet gas</a>
+<details class="menu"><summary aria-label="About this site"><span class="label">About</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="2"/></svg></summary>
+<div class="menu-panel">
+<h2>How it works</h2><p>Every transaction sent from the address on Ethereum mainnet, failed ones included. Each fee is receipt gas used × effective gas price, summed in exact wei. Failed gas is part of the total, shown separately too.</p>
+<h2>Data sources</h2><p>Transactions from <a href="https://eth.blockscout.com" target="_blank" rel="noreferrer">Blockscout</a>, receipts from public Ethereum RPC nodes, prices from <a href="https://exchange.coinbase.com/trade/ETH-USD" target="_blank" rel="noreferrer">Coinbase ETH-USD</a>. These services see your IP address. No analytics, no wallet connection.</p>
+<h2>Not counted</h2><p>Incoming transfers, internal calls and L2 fees.</p>
+<h2>About the USD figure</h2><p>An estimate: each fee is valued at the ETH-USD close of its UTC day, rounded to the cent. Today's price is provisional. Days with no price stay in ETH and are flagged.</p>
+<h2>Saved data</h2><p>Results and prices are kept in this browser for up to seven days so an interrupted run can resume. <button id="clear-data" class="link" type="button">Clear local data</button></p>
+</div></details></header>
 <main>
-<section class="intro" aria-labelledby="page-title"><span class="eyebrow">A little perspective on gas</span><h1 id="page-title">Your transactions.<br>Your <em>cost of Ethereum.</em></h1><p class="lede">See what your wallets spent on gas, in ETH and USD at each transaction day’s price. Failed transactions count, too.</p></section>
-<section class="input-area" aria-label="Calculate wallet gas">
-<form id="wallet-form" novalidate><div class="input-box"><label class="input-label" for="wallets">Ethereum wallet addresses</label><textarea id="wallets" name="wallets" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Paste a wallet address, starting with 0x…" aria-describedby="address-hint checksum-note form-error" required></textarea><div class="input-actions"><span id="address-hint" class="hint">One or more addresses. Separate with commas, spaces or new lines.</span><button id="calculate" type="submit">Calculate gas <span aria-hidden="true">↗</span></button></div></div><p id="form-error" class="form-error" role="alert" hidden></p></form>
-<p class="privacy-line">Public addresses only. No wallet connection, signing or transactions.</p>
-<div id="resume-row" class="resume-row" hidden><p id="resume-description"></p><button id="resume" class="secondary" type="button">Resume saved snapshot</button></div>
-<div id="progress-area" class="progress-area" hidden><div class="progress-copy"><p id="progress" role="status" aria-live="polite"></p><span id="elapsed" class="elapsed" aria-hidden="true"></span></div><button id="cancel" class="secondary" type="button">Cancel</button></div>
-<p id="storage-note" class="notice storage-note" role="status" hidden></p>
+<section class="ask" aria-labelledby="page-title">
+<h1 id="page-title">How much have you spent on gas?</h1>
+<form id="wallet-form" novalidate><label class="sr-only" for="wallets">Ethereum wallet addresses, separated by commas, spaces or new lines</label><textarea id="wallets" name="wallets" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" aria-describedby="form-error" required></textarea><p id="form-error" class="form-error" role="alert" hidden></p><button id="calculate" type="submit">Show my gas</button></form>
+<div id="resume-row" class="state row" hidden><p id="resume-description"></p><button id="resume" class="quiet" type="button">Resume</button></div>
+<div id="progress-area" class="state row" hidden><p><span id="progress" role="status" aria-live="polite"></span> <span id="elapsed" aria-hidden="true"></span></p><button id="cancel" class="quiet" type="button">Cancel</button></div>
+<p id="storage-note" class="state note" role="status" hidden></p>
 </section>
-<noscript><p class="no-script">Enable JavaScript to fetch public transaction history and calculate gas. No wallet access is needed.</p></noscript>
+<noscript><p class="flag">This page needs JavaScript to read public transaction history.</p></noscript>
 <section id="results" class="results" aria-labelledby="results-title" hidden>
-<div class="section-head"><div><h2 id="results-title" tabindex="-1">Gas, accounted for.</h2><p id="as-of" class="metadata"></p></div><div class="result-actions"><span id="completeness" class="tag"></span><button id="export-csv" class="secondary" type="button">Download CSV <span aria-hidden="true">↓</span></button></div></div>
-<div class="metrics"><div class="metric"><span id="eth-label" class="metric-label">Total gas paid</span><span class="metric-value"><span id="total-eth">0</span> <span class="unit">ETH</span></span><span id="exact-wei" class="exact"></span></div><div class="metric"><span id="usd-label" class="metric-label">Historical gas value</span><span id="total-usd" class="metric-value">$0.00</span><span id="usd-detail" class="exact"></span></div></div>
-<p id="failed-line" class="failed-line"></p><p id="quality" class="quality" role="status" hidden></p><details id="missing-details" class="missing-details" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details><p class="result-sources">Transactions: <a href="https://eth.blockscout.com" target="_blank" rel="noreferrer">Ethereum Blockscout</a> · Prices: <a href="https://exchange.coinbase.com/trade/ETH-USD" target="_blank" rel="noreferrer">Coinbase Exchange ETH-USD</a>, UTC daily close. USD is an estimate.</p>
-<div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown, scroll horizontally on small screens"><table><caption>Wallet breakdown</caption><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed subset</th><th scope="col">Gas paid · ETH</th><th scope="col">Historical USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div>
-<p class="table-note">Only sent, confirmed mainnet transactions. Incoming transfers, internal calls and L2 fees are excluded.</p>
-<section class="monthly-section" aria-labelledby="monthly-title"><div class="monthly-heading"><h3 id="monthly-title">Gas, month by month.</h3><p id="monthly-summary"></p></div><p class="chart-legend"><span class="legend-swatch"></span> Priced gas <span class="legend-swatch failed"></span> Failed subset</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly historical USD chart, scroll horizontally on small screens"></div><p id="chart-note" class="table-note"></p><details class="monthly-details"><summary>View monthly values</summary><div class="table-wrap"><table><caption class="sr-only">Monthly USD values and unpriced transaction counts</caption><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">Priced USD</th><th scope="col">Failed USD subset</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
+<h2 id="results-title" class="sr-only" tabindex="-1">Gas spent</h2>
+<p id="quality" class="flag" role="status" hidden></p>
+<p style="margin:16px 0 0"><span class="hero"><span id="total-eth">0</span> <span class="unit">ETH</span></span><span class="usd"><span id="total-usd">$0.00</span> <small id="usd-label" hidden></small></span></p>
+<p class="count"><span id="count-line"></span><span id="failed-line" class="failed"></span></p>
+<div class="more">
+<div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
+<section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-note" class="note"></p>
+<details class="plain"><summary>Monthly values</summary><div class="table-wrap"><table><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">USD</th><th scope="col">Failed USD</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
+<div class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="as-of"></p><p id="usd-detail"></p><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
+</div>
 </section>
-<section id="method" class="method" aria-labelledby="method-title"><h2 id="method-title">Every fee has a history.</h2><div><p>Gas is the fee you pay to use Ethereum. Even when a transaction fails, the work it used still costs gas. This page counts that cost once, and shows failures as part of the total.</p><details><summary>How the numbers are calculated</summary><p>Each fee is receipt gas used × effective gas price, summed in exact integer wei. Historical USD uses the Coinbase ETH-USD closing price for the transaction’s UTC day, rounded per transaction to the nearest cent, half up. Today’s daily price is provisional. Missing days remain unpriced; Coinbase coverage starts May 18, 2016 and has some gaps.</p></details><details><summary>What “complete” means</summary><p>We follow every Blockscout page until its terminal cursor, without a 10,000-transaction limit. Failed or interrupted requests leave partial results. Nonce gaps can indicate missing history or EIP-7702 authorizations; either way we keep the observed fees and flag completeness for review. An indexed block cutoff keeps a snapshot consistent, but indexing delays and chain reorganizations can affect a later calculation.</p></details><details><summary>Privacy, storage and address checks</summary><p id="checksum-note">Addresses are checked for 40 hexadecimal digits after 0x. Letter case is accepted without EIP-55 checksum verification; double-check what you paste. Addresses and public transactions are sent directly to Blockscout, and price dates to Coinbase. These services receive your IP address. This page has no analytics.</p><p>Validated daily prices and public wallet snapshots are kept in this browser until you clear them. Snapshots older than seven days must be refreshed. Nothing is fetched until you calculate or resume. “Clear local data” removes only this page’s saved prices and snapshots.</p></details></div></section>
 </main>
-<footer class="footer"><span>Read-only by design.<br>Wei are exact. USD tells an estimate.</span><button id="clear-data" class="text-button" type="button">Clear local data</button></footer>
 </div>
 <script id="gas-core">
 'use strict';
@@ -467,14 +510,14 @@ globalThis.Gas = (() => {
     }catch(error){text('storage-note','Saved snapshot could not be validated. Calculate a fresh snapshot or clear local data.');$('storage-note').hidden=false;}
   }
   function showResume(){
-    $('resume-row').hidden=!job;
-    if(job)text('resume-description',`${job.addresses.length} wallet${job.addresses.length===1?'':'s'} saved · ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,19)} UTC · block ${job.cutoff}.`);
+    const unfinished=!!job&&job.addresses.some(a=>!job.wallets[a]?.complete);$('resume-row').hidden=!unfinished;
+    if(unfinished)text('resume-description',`Unfinished run from ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,16)} UTC`);
   }
   function progress(message){text('progress',message);}
   function setBusy(busy){
     $('calculate').disabled=busy;$('resume').disabled=busy;$('clear-data').disabled=busy;$('wallets').readOnly=busy;
     $('progress-area').hidden=!busy;$('wallet-form').setAttribute('aria-busy',String(busy));
-    if(busy){started=Date.now();text('elapsed','Elapsed 0s');heartbeat=setInterval(()=>text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s · requests are read-only`),1000);}
+    if(busy){started=Date.now();text('elapsed','Elapsed 0s');heartbeat=setInterval(()=>text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`),1000);}
     else{clearInterval(heartbeat);heartbeat=null;showResume();}
   }
   function formError(message){text('form-error',message);$('form-error').hidden=!message;$('wallets').setAttribute('aria-invalid',message?'true':'false');}
@@ -490,30 +533,33 @@ globalThis.Gas = (() => {
     const rows=G.valueRows(observedRows(),prices),total=G.summarize(rows);
     const historiesComplete=job.addresses.every(address=>job.wallets[address]?.complete),fiatComplete=!total.missingCount;
     $('results').hidden=false;
-    text('as-of',`Snapshot ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,19)} UTC · indexed block ${job.cutoff.toLocaleString('en-US')} · ${total.count.toLocaleString('en-US')} sent transactions`);
-    text('completeness',historiesComplete?'History complete':'Partial history');$('completeness').classList.toggle('partial',!historiesComplete);
-    text('eth-label',historiesComplete?'Total gas paid':'Observed gas · partial history');
-    text('total-eth',G.formatEth(total.wei));text('exact-wei',`${total.wei} wei · exact receipt fees`);
-    text('usd-label',fiatComplete?(historiesComplete?'Historical gas value':'Observed historical USD'):'Priced subtotal · incomplete USD');
+    text('as-of',`Snapshot ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,19)} UTC, up to block ${job.cutoff.toLocaleString('en-US')}`);
+    text('completeness',historiesComplete?'History complete':'Partial history');
+    const eth=G.formatEth(total.wei),dot=eth.indexOf('.'),cut=dot<0?eth.length:Math.min(eth.length,dot+5);
+    $('total-eth').replaceChildren(eth.slice(0,cut));if(cut<eth.length)$('total-eth').append(node('span',eth.slice(cut),'tail'));
+    text('exact-wei',`${total.wei} wei`);
+    text('usd-label',fiatComplete?'':'priced subtotal');$('usd-label').hidden=fiatComplete;
+    text('count-line',total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?'No sent transactions':'0 transactions so far'));
     text('total-usd',G.formatUsd(total.usdCents));
     text('usd-detail',total.missingCount?`${total.missingCount} unpriced transactions across ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}`:
-      total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD · daily closes, summed after per-transaction cent rounding');
-    text('failed-line',`${total.failedCount} failed transaction${total.failedCount===1?'':'s'} · ${G.formatEth(total.failedWei)} ETH · ${G.formatUsd(total.failedUsdCents)}${total.failedMissingCount?' priced subtotal':''}. Already included above.`);
+      total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD at each UTC day’s close');
+    text('failed-line',total.failedCount?`, ${total.failedCount} failed (${G.formatEth(total.failedWei)} ETH, ${G.formatUsd(total.failedUsdCents)}${total.failedMissingCount?' priced':''})`:'');
     const notes=[];
-    if(!historiesComplete)notes.push('History is incomplete. These are observed fees, not a full-wallet total. Resume the saved snapshot or calculate a fresh one.');
-    if(total.missingCount)notes.push(`USD is unavailable in this calculation for ${total.missingCount} transactions across ${total.missingDays.length} UTC days. Those fees remain in ETH and are excluded from the priced USD subtotal.`);
-    if(total.provisionalCount)notes.push('Today’s Coinbase candle is still changing; its USD value is provisional.');
+    if(!historiesComplete)notes.push('Partial history: these totals are missing some transactions. Press Resume to finish.');
+    if(total.missingCount)notes.push(`No price for ${total.missingCount} transaction${total.missingCount===1?'':'s'} on ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}: counted in ETH, left out of USD.`);
+    
     if(issues.length)notes.push(...issues);
     text('missing-days',total.missingDays.join(', '));$('missing-details').hidden=!total.missingDays.length;
-    text('quality',notes.join(' '));$('quality').hidden=!notes.length;$('quality').classList.toggle('warning',!historiesComplete||!fiatComplete);
+    text('quality',notes.join(' '));$('quality').hidden=!notes.length;
+    $('breakdown').hidden=job.addresses.length<2;$('monthly').hidden=!rows.length;
     const body=$('wallet-rows');body.replaceChildren();
     for(const address of job.addresses){
       const summary=G.summarize(rows.filter(row=>row.address===address)),tr=document.createElement('tr'),cell=document.createElement('td');
       const link=node('a',address.slice(0,8)+'…'+address.slice(-6),'wallet');link.href=`https://eth.blockscout.com/address/${address}`;link.target='_blank';link.rel='noreferrer';link.title=address;link.setAttribute('aria-label',address+' on Ethereum Blockscout');cell.append(link);
-      cell.append(node('small',job.wallets[address]?.complete?'Complete history':'Partial · resume available','wallet-status'));tr.append(cell,node('td',String(summary.count)));
+      if(!job.wallets[address]?.complete)cell.append(node('small','Partial','wallet-status'));tr.append(cell,node('td',String(summary.count)));
       const failed=node('td',String(summary.failedCount),'wallet-failed');failed.append(node('small',G.formatEth(summary.failedWei)+' ETH'));tr.append(failed);
-      const eth=node('td',G.formatEth(summary.wei));eth.append(node('small',summary.wei+' wei'));tr.append(eth);
-      const usd=node('td',G.formatUsd(summary.usdCents));if(summary.missingCount)usd.append(node('small',`${summary.missingCount} unpriced · subtotal`));else if(summary.provisionalCount)usd.append(node('small','Includes today’s provisional price'));tr.append(usd);body.append(tr);
+      tr.append(node('td',G.formatEth(summary.wei)));
+      const usd=node('td',G.formatUsd(summary.usdCents));if(summary.missingCount)usd.append(node('small',`${summary.missingCount} unpriced · subtotal`));tr.append(usd);body.append(tr);
     }
     // Chart/export attach here in their own verified stage, using these same valued rows.
     document.dispatchEvent(new CustomEvent('gas-results',{detail:{job,rows,total,historiesComplete}}));
@@ -578,8 +624,7 @@ globalThis.Gas = (() => {
   function chart(detail) {
     current=detail;
     const months=G.monthlyTotals(detail.rows),body=$('monthly-rows'),container=$('monthly-chart');body.replaceChildren();container.replaceChildren();
-    $('monthly-summary').textContent=`${G.formatUsd(detail.total.usdCents)} ${detail.total.missingCount?'priced subtotal':'in daily USD'}${detail.historiesComplete?'':' · partial history'}`;
-    $('chart-note').textContent='Months with sent transactions. Failed gas is already included. '+(detail.total.missingCount?'* Unpriced fees are outside the USD bars; see the monthly values.':'')+(detail.total.provisionalCount?' Today’s price is provisional.':'');
+        $('chart-note').textContent=detail.total.missingCount?'* Some fees that month have no price.':'';
     for(const month of months) {
       const row=document.createElement('tr');
       row.append(cell(month.month),cell(month.count.toLocaleString('en-US')),cell(month.missingCount===month.count?'Unpriced':G.formatUsd(month.usdCents)),
@@ -591,16 +636,16 @@ globalThis.Gas = (() => {
     svg.append(element('title',{id:'chart-title'},'Monthly historical gas spending in USD'),element('desc',{id:'chart-description'},
       'Priced daily gas fees grouped by UTC month. Failed fees are a subset inside each bar. Missing prices are excluded and marked with a star. Exact values are available in the monthly table.'));
     const max=months.reduce((value,month)=>month.usdCents>value?month.usdCents:value,0n),scale=max||1n,bottom=205,height=175,step=944/months.length,width=Math.min(60,Math.max(4,step*.6));
-    for(const y of [bottom,bottom-height/2,bottom-height])svg.append(element('line',{x1:28,y1:y,x2:972,y2:y,stroke:'#dedfd8','stroke-width':1}));
+    for(const y of [bottom,bottom-height/2,bottom-height])svg.append(element('line',{x1:28,y1:y,x2:972,y2:y,stroke:'#ddd','stroke-width':1}));
     const interval=Math.max(1,Math.ceil(months.length/7));
     months.forEach((month,index)=>{
       const x=28+step*(index+.5),h=month.usdCents?Math.max(1,Number(month.usdCents*BigInt(height)/scale)):0,
         failed=month.failedUsdCents?Math.min(h,Math.max(1,Number(month.failedUsdCents*BigInt(height)/scale))):0;
       const group=element('g');group.append(element('title',{},`${month.month}: ${G.formatUsd(month.usdCents)} priced; failed subset ${G.formatUsd(month.failedUsdCents)}; ${month.missingCount} unpriced transactions`));
-      if(h)group.append(element('rect',{x:x-width/2,y:bottom-h,width,height:h,rx:2,fill:'#64765f'}));
-      if(failed)group.append(element('rect',{x:x-width/2,y:bottom-failed,width,height:failed,fill:'#963b32'}));
+      if(h)group.append(element('rect',{x:x-width/2,y:bottom-h,width,height:h,rx:2,fill:'#555'}));
+      if(failed)group.append(element('rect',{x:x-width/2,y:bottom-failed,width,height:failed,fill:'#b3261e'}));
       if(month.missingCount)group.append(element('text',{x,y:bottom-h-8,'text-anchor':'middle',fill:'#963b32','font-size':20},'*'));
-      if(index%interval===0||index===months.length-1)group.append(element('text',{x,y:bottom+30,'text-anchor':'middle',fill:'#62665d','font-size':12},
+      if(index%interval===0||index===months.length-1)group.append(element('text',{x,y:bottom+30,'text-anchor':'middle',fill:'#595959','font-size':22},
         new Date(month.month+'-01T00:00:00Z').toLocaleDateString('en-US',{month:'short',year:'2-digit',timeZone:'UTC'})));
       svg.append(group);
     });
@@ -616,6 +661,14 @@ globalThis.Gas = (() => {
     link.href=url;link.download=`wallet-gas-${job.asOf.slice(0,10)}${historiesComplete?'':'-partial'}.csv`;document.body.append(link);link.click();link.remove();
     setTimeout(()=>URL.revokeObjectURL(url),60000);
   });
+})();
+</script>
+<script id="gas-menu">
+'use strict';
+(() => {
+  const menu=document.querySelector('.menu');
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary').focus();}});
+  document.addEventListener('click',e=>{if(menu.open&&!menu.contains(e.target))menu.open=false;});
 })();
 </script>
 </body></html>
