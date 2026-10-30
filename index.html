@@ -660,7 +660,7 @@ globalThis.Gas = (() => {
       if(h)group.append(element('rect',{x:x-width/2,y:bottom-h,width,height:h,rx:3,class:'c-bar'}));
       if(failed)group.append(element('rect',{x:x-width/2,y:bottom-failed,width,height:failed,class:'c-failed'}));
       if(month.missingCount)group.append(element('text',{x,y:bottom-h-8,'text-anchor':'middle',class:'c-star','font-size':20},'*'));
-      if(index%interval===0||index===months.length-1)group.append(element('text',{x,y:bottom+30,'text-anchor':'middle',class:'c-axis','font-size':26},
+      if(index%interval===0||index===months.length-1)group.append(element('text',{x:index===0?Math.max(4,x-width/2):index===months.length-1?Math.min(996,x+width/2):x,y:bottom+30,'text-anchor':index===0?'start':index===months.length-1?'end':'middle',class:'c-axis','font-size':26},
         new Date(month.month+'-01T00:00:00Z').toLocaleDateString('en-US',{month:'short',year:'2-digit',timeZone:'UTC'})));
       svg.append(group);
     });
