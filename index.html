@@ -40,7 +40,6 @@ button:disabled{opacity:.55;cursor:wait}.quiet:hover{border-color:var(--field)}
 .results{padding:32px 0 72px;text-align:center}.results:focus{outline:0}
 .hero{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;column-gap:.22em;font-size:clamp(48px,14vw,76px);font-weight:700;line-height:1.05;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
 .hero #total-eth{display:contents}
-.hero .tail{order:2;flex-basis:100%;margin-top:10px;font-size:15px;font-weight:500;color:var(--muted);letter-spacing:.02em;line-height:1.4}.hero .tail::before{content:"…"}
 .hero .unit{order:1;font-size:clamp(22px,6.4vw,32px);font-weight:600;color:var(--muted);letter-spacing:0}
 .usd{display:block;font-size:28px;font-weight:600;margin-top:16px;font-variant-numeric:tabular-nums;letter-spacing:-.015em}#eth-label{display:block;font-size:14px;font-weight:400;color:var(--danger);margin-top:4px}.usd small{font-size:14px;font-weight:400;color:var(--danger);letter-spacing:0}
 .count{margin:8px 0 0;color:var(--muted);font-variant-numeric:tabular-nums}.count .failed{color:var(--danger)}
@@ -587,8 +586,8 @@ globalThis.Gas = (() => {
     text('as-of',`As of ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,16)} UTC, block ${job.cutoff.toLocaleString('en-US')}`);
     text('completeness',!historiesComplete?'Partial history':receiptsComplete?'History complete':'History complete, some fees unverified');
     const eth=G.formatEth(total.wei),dot=eth.indexOf('.'),cut=dot<0?eth.length:Math.min(eth.length,dot+5);
-    $('total-eth').replaceChildren(eth.slice(0,cut));if(cut<eth.length)$('total-eth').append(node('span',eth.slice(cut),'tail'));
-    text('exact-wei',`Exact: ${total.wei.toLocaleString('en-US')} wei`);
+    text('total-eth',eth.slice(0,cut));$('total-eth').dataset.exact=eth;
+    text('exact-wei',`Exact: ${eth} ETH (${total.wei.toLocaleString('en-US')} wei)`);
     text('eth-label',receiptsComplete?'':'verified subtotal');$('eth-label').hidden=receiptsComplete;const usdPartial=!fiatComplete||!receiptsComplete;text('usd-label',usdPartial?'priced subtotal':'');$('usd-label').hidden=!usdPartial;
     text('count-line',unresolved.length?`${total.count.toLocaleString('en-US')} of ${(total.count+unresolved.length).toLocaleString('en-US')} transactions verified`:total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?'No sent transactions':'0 transactions so far'));
     text('total-usd',G.formatUsd(total.usdCents));
