@@ -1,35 +1,50 @@
 # Ethereum wallet gas spending
 
-A small, read-only Ethereum mainnet gas audit site for people who want to understand what their wallets have paid to use the network. It combines exact receipt fees with historical daily ETH/USD prices, includes failed transactions, and makes incomplete data visible. Source verification and the calculation engine are implemented; the landing interface, CSV and chart follow in the remaining stages.
+See what one or more Ethereum wallets paid to use the network, including failed transactions. This read-only static page combines exact receipt fees with historical daily ETH/USD prices, keeps missing data explicit, and preserves interrupted calculations locally. It is built for wallet owners who want an auditable answer without connecting a wallet or handing over credentials.
 
 ## Tech Stack And Why Chosen
 
-- One vanilla HTML/CSS/JavaScript file: portable static hosting, no build, dependencies, wallet connection or secret.
-- BigInt wei and fixed-point USD: exact fee arithmetic and consistent row-rounded totals across UI, CSV and chart.
-- Built-in Node tests: exercise the same inline production logic without a parallel library.
-- Python 3/curl source probes and JSON fixtures: reproducible, attributable public-data evidence without packages.
+- **One vanilla HTML/CSS/JavaScript file:** portable static hosting, no build, CDN, runtime dependencies or secret.
+- **BigInt wei and fixed-point USD:** exact fee arithmetic and consistent per-transaction rounding.
+- **Built-in Node tests:** exercise the shipped inline production logic without a second library that can drift.
+- **Python/curl probes and public JSON fixtures:** reproducible source evidence without installed packages.
 
-## Source evidence and current status
+The calculation engine and minimalist landing page are implemented. Monthly chart and CSV export are the next stage. See the [active plan](plans/wallet-gas.md), [verification evidence](docs/verification.md), [API evidence](docs/source-verification.md) and [manual smoke checks](docs/smoke-tests.md).
 
-[Source verification](docs/source-verification.md), [independent receipt comparisons](docs/source-receipts.md) and the [active plan](plans/wallet-gas.md) explain the evidence and remaining stages. Blockscout enumerates sent transactions; its receipt-equivalent gas fields match three independent mainnet receipts. Coinbase Exchange supplies ETH-USD UTC daily closes: full-window verification found 3,815 daily prices from 2016-05-18 through 2026-10-29, with two absent early days. Earlier/gap transaction days stay explicitly missing. Browser CORS and product behavior are verified in later stages.
+## Open and use
 
-## Inspect and reproduce
+Use a modern browser. Node 22+ is needed only for the optional local server and tests. No npm install or build step.
 
-Requirements: Python 3 and curl on PATH for source probes. No install or build step. `python3 scripts/verify-receipts.py` checks captured receipts offline; `--live` refreshes them. `python3 scripts/verify-price-history.py` refreshes full-window public Coinbase history. `python3 scripts/verify-wallet-history.py` follows the public diagnostic fixture history; a nonterminal cursor is partial, never a total. All support `--help` and `--plain` for ASCII labels. Old `probe-sources.py` preserves historical diagnostics; do not retry its obsolete price sources.
+Run `npm run dev` and open its printed localhost URL. If port 4317 is occupied, it automatically selects another port and preserves the existing listener. `node scripts/serve.mjs --port 4400` chooses another preferred port; `--plain` uses ASCII labels and `--help` explains the options. The server exposes only index.html. Any static host can serve that file; deployment is outside this task.
 
-App usage and Node/browser/CSV commands will be documented as the corresponding stages land. No deployment is part of this task.
+Paste full 0x addresses, separated by commas, spaces, semicolons or newlines. Address identity is case-insensitive; mixed-case EIP-55 checksums are **not verified**, and ENS names are rejected. Results appear below the input with exact ETH/wei, historical USD, failed subset and wallet breakdown. Empty wallets show zeros. Failed gas is already included in the total.
 
-## Calculation and limits
+Cancel retains validated pages. Resume uses the saved indexed-block snapshot; Calculate captures a fresh cutoff. History remains partial until terminal pagination and integrity checks pass. Today’s USD price is provisional, while missing daily prices yield a visibly incomplete priced subtotal.
 
-Only unique canonical sent mainnet transactions count. Exact fee is receipt gasUsed × effectiveGasPrice in BigInt wei. Failed fees are already included in total and displayed separately as a subset. Incoming/internal/token transfer events and L2 fees are excluded. UTC daily Coinbase close at eight decimal places is converted to per-transaction USD cents, half up; totals sum row cents. Missing quotes never become zero and are never guessed. Daily estimates differ from execution-time quotes; explorer indexing and availability remain external dependencies.
+## Sources, precision and limits
+
+- Transactions: [Ethereum Blockscout API v2](https://docs.blockscout.com/api-reference/get-address-transactions), sent filter and keyset pagination until the terminal cursor. No arbitrary 10,000-transaction cutoff. Receipt-equivalent `gas_used`, `gas_price` and status match independently sampled mainnet dRPC receipts covering legacy, EIP-1559 and failures. See [receipt evidence](docs/source-receipts.md).
+- Prices: [Coinbase Exchange ETH-USD daily candles](https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-candles), UTC daily close. Requests use windows shorter than 300 days. Full-window verification found 3,815 prices from 2016-05-18 through 2026-10-29, with absent 2016-05-21/22 buckets. Earlier and missing transaction days stay unpriced. No CryptoCompare, CoinGecko, Etherscan API or key is used.
+- Exact fee: `BigInt(gasUsed) × BigInt(effectiveGasPrice)` in integer wei. ETH is formatted only for display. Prices are rounded to eight fixed decimal places; each transaction’s USD fee rounds half up to cents, then those row cents are summed. A failed subset is never added again. Daily closes estimate historical value rather than execution-time quotes.
+- Confirmed canonical sent mainnet transactions only: incoming transactions, internal calls, transfer-event duplication and L2 fees are excluded. Pending transactions are excluded. Missing confirmed receipt fields stop that page without advancing its cursor.
+- The explorer is the sole enumeration source. Indexing lag, reorgs and provider outages remain limitations. Nonce gaps can indicate truncated history **or EIP-7702 authorizations**; the page conservatively retains observed fees and flags history incomplete for review. Synthetic tests cover 10,100 transactions; that does not establish an exhaustive independent high-volume wallet audit.
+- Requests are sequential, paced and bounded by timeouts/retry budgets. Visible progress and cancellation remain available. Available rate/reset/Retry-After headers inform backoff; headers not exposed by browser CORS cannot be read. Source availability/terms can change.
+
+## Privacy and local storage
+
+No keys, signing, wallet connection, transactions, analytics or backend. The browser sends public addresses to Blockscout and price dates to Coinbase; those providers receive your IP address. Runtime dependencies are limited to these public data APIs.
+
+Versioned validated daily prices and public wallet checkpoints remain in this browser until **Clear local data** removes this app’s two keys. Completed historical quotes persist; today’s provisional candle is never cached as final. Snapshots older than seven days require a new calculation. Malformed data is rejected, and unavailable/full storage keeps results usable in memory with a warning. A saved checkpoint records the cutoff and as-of time, not a guarantee against chain reorgs.
+
+## Verify
+
+`npm test` runs all built-in Node tests. `node scripts/wallet-report.mjs --fixture small` replays the captured public failed sender through the production engine; `--fixture empty` shows zero behavior. Both are offline fixture replays, not current source-availability checks. `--plain` uses ASCII labels; `--help` prints usage.
+
+Python 3 source checks: `python3 scripts/verify-receipts.py` validates saved independent receipts; `--live` refreshes them. `python3 scripts/verify-price-history.py` refreshes the full historical Coinbase range. `python3 scripts/verify-wallet-history.py` validates the saved partial high-volume diagnostic; `--live` resumes its cursor with bounded retries. All support `--plain` and `--help`; receipt/history probes also offer `--details` for raw diagnostics. Old probe-sources.py preserves obsolete diagnostics and is not a production dependency.
+
+`python3 scripts/browser-check.py` runs controlled UI states through an installed chrome-devtools-axi against the local server. `--port` selects the printed server port, `--plain` uses ASCII and `--details` shows failure diagnostics. This optional developer browser tool is not needed by visitors. Live source checks are recorded separately in [verification](docs/verification.md). Physical mobile devices, non-Chromium engines and a real screen reader remain unverified.
 
 ## Future work
 
 - CAD and other currencies via daily historical FX; USD is the only MVP currency.
-- Optional additional independent transaction enumeration sources and price-provider failover. The current product pins Coinbase, with explicit gaps.
-
-## Calculation engine verification
-
-Node 22 or newer runs the production inline engine directly. `node --test tests/core.test.mjs` covers input validation, exact fees and USD rounding, failed/missing subsets, >10,000 synthetic transactions, persisted checkpoint resume, retries, cancellation and cache corruption. `node scripts/wallet-report.mjs --fixture small` replays the captured 34-transaction failed sender; `--fixture empty` shows zero behavior. `--plain` uses ASCII labels and `--help` prints usage. These fixture replays do not issue live requests or establish current explorer availability.
-
-The engine validates complete history conservatively using sent nonce continuity. EIP-7702 authorizations can consume nonces without a sent transaction, so a nonce gap can produce an explicit incomplete warning even for a legitimately complete explorer response; the site must retain observed fee rows without certifying a full-wallet total.
+- Additional independent transaction enumerators and price-provider failover. The current product pins Coinbase with explicit missing days.
