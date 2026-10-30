@@ -83,13 +83,13 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <section id="results" class="results" aria-labelledby="results-title" hidden>
 <h2 id="results-title" class="sr-only" tabindex="-1">Gas spent</h2>
 <p id="quality" class="flag" role="status" hidden></p>
-<p style="margin:16px 0 0"><span class="hero"><span id="total-eth">0</span> <span class="unit">ETH</span></span><small id="eth-label" hidden></small><span class="usd"><span id="total-usd">$0.00</span> <small id="usd-label" hidden></small></span></p>
-<p class="count"><span id="count-line"></span><span id="failed-line" class="failed"></span></p>
+<p id="hero-line" style="margin:16px 0 0"><span class="hero"><span id="total-eth">0</span> <span class="unit">ETH</span></span><small id="eth-label" hidden></small><span class="usd"><span id="total-usd">$0.00</span> <small id="usd-label" hidden></small></span></p>
+<p id="count-row" class="count"><span id="count-line"></span><span id="failed-line" class="failed"></span></p>
 <div class="more">
 <div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
 <section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-note" class="note"></p>
 <details class="plain"><summary>Monthly values</summary><div class="table-wrap"><table><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">USD</th><th scope="col">Failed USD</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
-<div class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="failed-detail" hidden></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
+<div id="details-row" class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="failed-detail" hidden></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
 </div>
 </section>
 </main>
@@ -589,7 +589,8 @@ globalThis.Gas = (() => {
     text('total-eth',eth.slice(0,cut));$('total-eth').dataset.exact=eth;
     text('exact-wei',`Exact: ${eth} ETH (${total.wei.toLocaleString('en-US')} wei)`);
     text('eth-label',receiptsComplete?'':'verified subtotal');$('eth-label').hidden=receiptsComplete;const usdPartial=!fiatComplete||!receiptsComplete;text('usd-label',usdPartial?'priced subtotal':'');$('usd-label').hidden=!usdPartial;
-    text('count-line',unresolved.length?`${total.count.toLocaleString('en-US')} of ${(total.count+unresolved.length).toLocaleString('en-US')} transactions verified`:total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?'No sent transactions':'0 transactions so far'));
+    text('count-line',unresolved.length?`${total.count.toLocaleString('en-US')} of ${(total.count+unresolved.length).toLocaleString('en-US')} transactions verified`:total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?`No sent transactions for ${job.addresses.length>1?'these wallets':'this wallet'}`:'0 transactions so far'));
+    const empty=historiesComplete&&receiptsComplete&&!total.count;$('hero-line').hidden=empty;$('details-row').hidden=empty;
     text('total-usd',G.formatUsd(total.usdCents));
     text('usd-detail',total.missingCount?`${total.missingCount} unpriced transactions across ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}`:
       total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD at each UTC day’s close');
