@@ -42,7 +42,7 @@ button:disabled{opacity:.55;cursor:wait}.quiet:hover{border-color:var(--field)}
 .hero #total-eth{display:contents}
 .hero .tail{order:2;flex-basis:100%;margin-top:10px;font-size:15px;font-weight:500;color:var(--muted);letter-spacing:.02em;line-height:1.4}.hero .tail::before{content:"…"}
 .hero .unit{order:1;font-size:clamp(22px,6.4vw,32px);font-weight:600;color:var(--muted);letter-spacing:0}
-.usd{display:block;font-size:28px;font-weight:600;margin-top:16px;font-variant-numeric:tabular-nums;letter-spacing:-.015em}.usd small{font-size:14px;font-weight:400;color:var(--danger);letter-spacing:0}
+.usd{display:block;font-size:28px;font-weight:600;margin-top:16px;font-variant-numeric:tabular-nums;letter-spacing:-.015em}#eth-label{display:block;font-size:14px;font-weight:400;color:var(--danger);margin-top:4px}.usd small{font-size:14px;font-weight:400;color:var(--danger);letter-spacing:0}
 .count{margin:8px 0 0;color:var(--muted);font-variant-numeric:tabular-nums}.count .failed{color:var(--danger)}
 .more{margin-top:48px;text-align:left;font-size:14px}.more>*+*{margin-top:24px}
 details.plain summary{cursor:pointer;min-height:44px;line-height:44px;display:list-item;color:var(--text)}
@@ -84,7 +84,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <section id="results" class="results" aria-labelledby="results-title" hidden>
 <h2 id="results-title" class="sr-only" tabindex="-1">Gas spent</h2>
 <p id="quality" class="flag" role="status" hidden></p>
-<p style="margin:16px 0 0"><span class="hero"><span id="total-eth">0</span> <span class="unit">ETH</span></span><span class="usd"><span id="total-usd">$0.00</span> <small id="usd-label" hidden></small></span></p>
+<p style="margin:16px 0 0"><span class="hero"><span id="total-eth">0</span> <span class="unit">ETH</span></span><small id="eth-label" hidden></small><span class="usd"><span id="total-usd">$0.00</span> <small id="usd-label" hidden></small></span></p>
 <p class="count"><span id="count-line"></span><span id="failed-line" class="failed"></span></p>
 <div class="more">
 <div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
@@ -294,11 +294,24 @@ globalThis.Gas = (() => {
   }
   // Receipt verification: one eth_getTransactionReceipt per POST, a shared pool of at most `concurrency` requests,
   // per-endpoint health (failure count + cooldown with backoff) so a rate-limited RPC is skipped, and a per-session hash cache.
+  // Trailing-edge throttle: at most one call per `ms`; flush() runs a pending call now, cancel() drops it.
+  function createThrottle(fn,ms=250,options={}){
+    const now=options.now||Date.now,set=options.setTimeout||setTimeout,clear=options.clearTimeout||clearTimeout;
+    let last=-Infinity,timer=null;
+    function run(){timer=null;last=now();fn();}
+    function call(){if(timer!==null)return;const wait=last+ms-now();if(wait<=0)run();else timer=set(run,wait);}
+    call.cancel=()=>{if(timer!==null){clear(timer);timer=null;}};
+    call.flush=()=>{if(timer!==null){call.cancel();run();}};
+    call.pending=()=>timer!==null;
+    return call;
+  }
   function createReceiptClient(options={}) {
     const fetcher=options.fetch||globalThis.fetch,pause=options.sleep||sleep,now=options.now||Date.now,signal=options.signal,
       providers=options.providers||RPC_PROVIDERS,concurrency=Math.max(1,options.concurrency??RECEIPT_CONCURRENCY),rounds=options.rounds??3,
       timeoutMs=options.timeout??12000,chains=new Map(),receipts=options.cache||new Map();
     const health=new Map(providers.map((url,index)=>[url,{index,failures:0,cooldownUntil:0}]));
+    // Circuit breaker: once every endpoint has failed BREAKER times and is cooling down, remaining receipts end unverified at once.
+    const BREAKER=options.breaker??8;
     let active=0;const waiting=[];
     async function slot(){checkAbort(signal);if(active<concurrency){active++;return;}await new Promise(resolve=>waiting.push(resolve));if(signal?.aborted){release();checkAbort(signal);}}
     function release(){const next=waiting.shift();if(next)next();else active--;}
@@ -320,30 +333,28 @@ globalThis.Gas = (() => {
         return body.result;
       }finally{clearTimeout(timer);signal?.removeEventListener('abort',onAbort);release();}
     }
-    function penalize(url,error){const h=health.get(url);h.failures++;h.cooldownUntil=now()+Math.max(error.retryAfter||0,Math.min(30000,500*2**Math.min(h.failures,6)));}
-    function reward(url){const h=health.get(url);h.failures=Math.max(0,h.failures-1);}
+    function penalize(url,error){const h=health.get(url);h.failures++;h.cooldownUntil=now()+(error.retryAfter>0?error.retryAfter:Math.min(30000,500*2**Math.min(h.failures,6)));}
+    function reward(url){const h=health.get(url);h.failures=0;h.cooldownUntil=0;}
     function order(){const t=now();return [...health.entries()].sort(([,a],[,b])=>(a.cooldownUntil>t)-(b.cooldownUntil>t)||a.failures-b.failures||a.index-b.index).map(([url])=>url);}
     async function lookup(tx){
-      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],done=new Set();
-      for(let round=0;round<rounds;round++){
-        let transient=false;
-        for(const source of order()){
-          if(done.has(source))continue;checkAbort(signal);
-          const h=health.get(source),wait=h.cooldownUntil-now();
-          if(wait>0){if(round<rounds-1&&order().some(url=>!done.has(url)&&health.get(url).cooldownUntil<=now()&&url!==source)){transient=true;continue;}await pause(Math.min(wait,30000),signal);}
-          try{
-            if(!chains.has(source))chains.set(source,post(source,'eth_chainId',[]).then(chain=>{if(chain!=='0x1')throw new Error('RPC is not Ethereum mainnet.');return true;}).catch(error=>{chains.delete(source);throw error;}));
-            await chains.get(source);
-            const verification={chainId:1,source,receipt:await post(source,'eth_getTransactionReceipt',[tx.hash])};
-            normalizeTransaction(tx,sender,verification);reward(source);return verification;
-          }catch(error){
-            checkAbort(signal);errors.push(new URL(source).hostname+': '+error.message);
-            if(error instanceof Transient){transient=true;penalize(source,error);}else done.add(source);
-          }
+      const sender=typeof tx.from==='string'?tx.from:tx.from?.hash,errors=[],done=new Set(),fail=()=>{throw new Error('Receipt unverified after all public RPCs: '+errors.join(' '));};
+      // Attempt-driven: always try the endpoint that is ready soonest, so one dead fallback's long cooldown never blocks a recovering one.
+      for(let attempt=0;attempt<rounds*providers.length;attempt++){
+        checkAbort(signal);const live=order().filter(url=>!done.has(url));if(!live.length)break;
+        const source=live.reduce((a,b)=>health.get(b).cooldownUntil<health.get(a).cooldownUntil?b:a),wait=health.get(source).cooldownUntil-now();
+        if(wait>0){if([...health.values()].every(x=>x.failures>=BREAKER&&x.cooldownUntil>now())){errors.push('all public RPCs are rate-limited or failing');break;}
+          await pause(Math.min(wait,30000),signal);}
+        try{
+          if(!chains.has(source))chains.set(source,post(source,'eth_chainId',[]).then(chain=>{if(chain!=='0x1')throw new Error('RPC is not Ethereum mainnet.');return true;}).catch(error=>{chains.delete(source);throw error;}));
+          await chains.get(source);
+          const verification={chainId:1,source,receipt:await post(source,'eth_getTransactionReceipt',[tx.hash])};
+          normalizeTransaction(tx,sender,verification);reward(source);return verification;
+        }catch(error){
+          checkAbort(signal);errors.push(new URL(source).hostname+': '+error.message);
+          if(error instanceof Transient)penalize(source,error);else done.add(source);
         }
-        if(!transient||done.size===providers.length)break;
       }
-      throw new Error('Receipt unverified after all public RPCs: '+errors.join(' '));
+      return fail();
     }
     return {getReceipt(tx){
       if(!receipts.has(tx.hash))receipts.set(tx.hash,lookup(tx).catch(error=>{receipts.delete(tx.hash);throw error;}));
@@ -518,7 +529,7 @@ globalThis.Gas = (() => {
     return columns.join(',')+'\r\n'+records.map(record=>columns.map(column=>csvCell(record[column])).join(',')).join('\r\n')+'\r\n';
   }
   return {WEI,PRICE_SCALE,SOURCE,PRICE_KEY,JOB_KEY,EXPLORER,parseAddresses,normalizeTransaction,formatEth,formatUsd,priceToUnits,
-    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,fetchWallet,loadPrices,checkAbort,csvCell,monthlyTotals,exportCsv,createReceiptClient,RPC_PROVIDERS};
+    valueRows,summarize,serializeRow,validateCheckpoint,validatePriceCache,createClient,fetchWallet,loadPrices,checkAbort,csvCell,monthlyTotals,exportCsv,createReceiptClient,createThrottle,RPC_PROVIDERS};
 })();
 </script>
 <script id="gas-ui">
@@ -526,7 +537,7 @@ globalThis.Gas = (() => {
 (() => {
   const $=id=>document.getElementById(id),G=globalThis.Gas;
   const receiptCache=new Map();
-  let job=null,controller=null,heartbeat=null,started=0,storage=null,storageWarned=false;
+  let job=null,controller=null,heartbeat=null,started=0,lastProgressAt=0,stalled=false,storage=null,storageWarned=false;
   try {storage=localStorage;}catch{storageWarning();}
   function text(id,value){$(id).textContent=value;}
   function storageWarning(){storageWarned=true;text('storage-note','Browser storage is unavailable or full. Results continue in memory; keep this tab open to retain progress.');$('storage-note').hidden=false;}
@@ -543,14 +554,16 @@ globalThis.Gas = (() => {
     }catch(error){text('storage-note','Saved snapshot could not be validated. Calculate a fresh snapshot or clear local data.');$('storage-note').hidden=false;}
   }
   function showResume(){
-    const unfinished=!!job&&job.addresses.some(a=>!job.wallets[a]?.complete);$('resume-row').hidden=!unfinished;
+    const unfinished=!!job&&(job.addresses.some(a=>!job.wallets[a]?.complete)||unverifiedRows().length>0);$('resume-row').hidden=!unfinished;
     if(unfinished)text('resume-description',`Unfinished run from ${new Date(job.asOf).toISOString().replace('T',' ').slice(0,16)} UTC`);
   }
-  function progress(message){text('progress',message);}
+  // Stall watchdog: no progress for STALL_MS aborts in-flight requests; the run ends resumable.
+  const STALL_MS=globalThis.WG_STALL_MS||45000;
+  function progress(message){lastProgressAt=Date.now();text('progress',message);}
   function setBusy(busy){
     $('calculate').disabled=busy;$('resume').disabled=busy;$('clear-data').disabled=busy;$('wallets').readOnly=busy;
     $('progress-area').hidden=!busy;$('wallet-form').setAttribute('aria-busy',String(busy));
-    if(busy){started=Date.now();text('elapsed','Elapsed 0s');heartbeat=setInterval(()=>text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`),1000);}
+    if(busy){started=Date.now();text('elapsed','Elapsed 0s');lastProgressAt=started;stalled=false;heartbeat=setInterval(()=>{text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`);if(controller&&!stalled&&Date.now()-lastProgressAt>STALL_MS){stalled=true;controller.abort();}},1000);}
     else{clearInterval(heartbeat);heartbeat=null;showResume();}
   }
   function formError(message){text('form-error',message);$('form-error').hidden=!message;$('wallets').setAttribute('aria-invalid',message?'true':'false');}
@@ -572,8 +585,8 @@ globalThis.Gas = (() => {
     const eth=G.formatEth(total.wei),dot=eth.indexOf('.'),cut=dot<0?eth.length:Math.min(eth.length,dot+5);
     $('total-eth').replaceChildren(eth.slice(0,cut));if(cut<eth.length)$('total-eth').append(node('span',eth.slice(cut),'tail'));
     text('exact-wei',`${total.wei} wei, exact receipt fees`);
-    const usdPartial=!fiatComplete||!receiptsComplete;text('usd-label',usdPartial?'priced subtotal':'');$('usd-label').hidden=!usdPartial;
-    text('count-line',total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?'No sent transactions':'0 transactions so far'));
+    text('eth-label',receiptsComplete?'':'verified subtotal');$('eth-label').hidden=receiptsComplete;const usdPartial=!fiatComplete||!receiptsComplete;text('usd-label',usdPartial?'priced subtotal':'');$('usd-label').hidden=!usdPartial;
+    text('count-line',unresolved.length?`${total.count.toLocaleString('en-US')} of ${(total.count+unresolved.length).toLocaleString('en-US')} transactions verified`:total.count?`${total.count.toLocaleString('en-US')} transaction${total.count===1?'':'s'}`:(historiesComplete?'No sent transactions':'0 transactions so far'));
     text('total-usd',G.formatUsd(total.usdCents));
     text('usd-detail',total.missingCount?`${total.missingCount} unpriced transactions across ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}`:
       total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD at each UTC day’s close');
@@ -611,7 +624,7 @@ globalThis.Gas = (() => {
     if(controller)return;
     controller=new AbortController();setBusy(true);const signal=controller.signal;
     const client=G.createClient({signal,onProgress:progress}),receiptClient=G.createReceiptClient({signal,onProgress:progress,cache:receiptCache});
-    const issues=[];let prices=new Map(),activeSnapshot=resume;
+    const issues=[];let prices=new Map(),activeSnapshot=resume;const redraw=G.createThrottle(()=>render(),250);
     if(!resume)$('results').hidden=true;
     try{
       if(!resume){
@@ -627,15 +640,15 @@ globalThis.Gas = (() => {
         try{
           await G.fetchWallet(address,{cutoff:job.cutoff,asOf:job.asOf,checkpoint:job.wallets[address],signal,request:client.get,getReceipt:receiptClient.getReceipt,
             onCheckpoint:cp=>{job.wallets[address]=cp;persist();},
-            onProgress:status=>{progress(`${job.addresses.length>1?`Wallet ${index+1}/${job.addresses.length}: `:''}Verified ${status.verified.toLocaleString('en-US')}/${status.count.toLocaleString('en-US')} receipts${status.complete?'':'…'}`);render();}});
+            onProgress:status=>{progress(`${job.addresses.length>1?`Wallet ${index+1}/${job.addresses.length}: `:''}Verified ${status.verified.toLocaleString('en-US')}/${status.count.toLocaleString('en-US')} receipts${status.complete?'':'…'}`);redraw();}});
         }catch(error){if(signal.aborted)throw error;issues.push(`${address.slice(0,8)}…${address.slice(-6)}: ${error.message}`);}
       }
       const rows=observedRows();
       prices=await G.loadPrices(rows.map(row=>row.day),{request:client.get,storage,signal,onProgress:progress});
-      render(prices,issues,true);$('results-title').focus({preventScroll:true});
+      redraw.cancel();render(prices,issues,true);$('results-title').focus({preventScroll:true});
     }catch(error){
-      if(activeSnapshot&&job){issues.push(signal.aborted?'Calculation cancelled. Validated pages are retained; resume this snapshot to continue.':error.message);render(prices,issues,true);}
-      else formError(error.message);
+      if(activeSnapshot&&job){redraw.cancel();issues.push(stalled?'Stalled — tap Resume. No progress for '+Math.round(STALL_MS/1000)+'s, so in-flight requests were stopped; verified work is retained.':signal.aborted?'Calculation cancelled. Validated pages are retained; resume this snapshot to continue.':error.message);render(prices,issues,true);}
+      else formError(stalled?'Stalled — tap Calculate to try again.':error.message);
     }finally{controller=null;setBusy(false);persist();}
   }
   $('wallet-form').addEventListener('submit',event=>{event.preventDefault();calculate(false);});
