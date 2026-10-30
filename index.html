@@ -74,7 +74,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <main>
 <section class="ask" aria-labelledby="page-title">
 <h1 id="page-title">How much have you spent on gas?</h1>
-<div class="card"><form id="wallet-form" novalidate><label class="sr-only" for="wallets">Ethereum wallet addresses, separated by commas, spaces or new lines</label><textarea id="wallets" name="wallets" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" aria-describedby="form-error" required></textarea><p id="form-error" class="form-error" role="alert" hidden></p><button id="calculate" type="submit">Show my gas</button></form></div>
+<div class="card"><form id="wallet-form" novalidate><label class="sr-only" for="wallets">Ethereum wallet addresses, separated by commas, spaces or new lines</label><textarea id="wallets" name="wallets" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" aria-describedby="form-error" required></textarea><p id="form-error" class="form-error" role="alert" hidden></p><button id="retry" class="quiet" type="button" hidden>Try again</button><button id="calculate" type="submit">Show my gas</button></form></div>
 <div id="resume-row" class="state row" hidden><p id="resume-description"></p><button id="resume" class="quiet" type="button">Resume</button></div>
 <div id="progress-area" class="state row" hidden><p><span id="progress" role="status" aria-live="polite"></span> <span id="elapsed" aria-hidden="true"></span></p><button id="cancel" class="quiet" type="button">Cancel</button></div>
 <p id="storage-note" class="state note" role="status" hidden></p>
@@ -561,16 +561,16 @@ globalThis.Gas = (() => {
   // Stall watchdog: no progress for STALL_MS aborts in-flight requests; the run ends resumable.
   const STALL_MS=globalThis.WG_STALL_MS||45000,MAX_RUN_MS=globalThis.WG_MAX_RUN_MS||600000;let stallReason='';
   // Network failures read as one plain sentence; other messages already say what to do.
-  function plainError(message){return /Failed to fetch|NetworkError|Load failed|Source unavailable|Retry budget|timed out/i.test(message)?'Couldn’t reach the data sources. Check your connection, then tap Resume.':message;}
+  function plainError(message){return /Failed to fetch|NetworkError|Load failed|Source unavailable|Retry budget|timed out/i.test(message)?'Couldn’t reach the data sources. Check your connection and try again.':message;}
   function plainReason(reason){return /429|rate-limit/i.test(reason)?'rate-limited':/Awaiting/.test(reason)?'checking':'couldn’t verify';}
   function progress(message){lastProgressAt=Date.now();text('progress',message);}
   function setBusy(busy){
-    $('calculate').disabled=busy;$('resume').disabled=busy;$('clear-data').disabled=busy;$('wallets').readOnly=busy;
+    $('calculate').disabled=busy;$('retry').disabled=busy;$('resume').disabled=busy;$('clear-data').disabled=busy;$('wallets').readOnly=busy;
     $('progress-area').hidden=!busy;$('wallet-form').setAttribute('aria-busy',String(busy));
     if(busy){started=Date.now();text('elapsed','Elapsed 0s');lastProgressAt=started;stalled=false;heartbeat=setInterval(()=>{text('elapsed',`Elapsed ${Math.floor((Date.now()-started)/1000)}s`);if(controller&&!stalled&&(Date.now()-lastProgressAt>STALL_MS||Date.now()-started>MAX_RUN_MS)){stallReason=Date.now()-started>MAX_RUN_MS?'Taking too long. Progress is saved.':'Stalled. Progress is saved.';stalled=true;controller.abort();}},1000);}
     else{clearInterval(heartbeat);heartbeat=null;showResume();}
   }
-  function formError(message){text('form-error',message);$('form-error').hidden=!message;$('wallets').setAttribute('aria-invalid',message?'true':'false');}
+  function formError(message,retry=false){text('form-error',message);$('form-error').hidden=!message;$('retry').hidden=!(message&&retry);$('wallets').setAttribute('aria-invalid',message?'true':'false');}
   function observedRows(){
     const rows=new Map();
     if(!job)return [];
@@ -655,11 +655,12 @@ globalThis.Gas = (() => {
       redraw.cancel();render(prices,issues,true);$('results-title').focus({preventScroll:true});
     }catch(error){
       if(activeSnapshot&&job){redraw.cancel();issues.push(stalled?stallReason:signal.aborted?'Cancelled. Progress is saved.':plainError(error.message));render(prices,issues,true);}
-      else formError(stalled?'Stalled. Try again.':plainError(error.message));
+      else formError(stalled?'Stalled.':plainError(error.message),true);
     }finally{controller=null;setBusy(false);persist();}
   }
   $('wallet-form').addEventListener('submit',event=>{event.preventDefault();calculate(false);});
   $('resume').addEventListener('click',()=>calculate(true));
+  $('retry').addEventListener('click',()=>calculate(false));
   $('cancel').addEventListener('click',()=>controller?.abort());
   $('wallets').addEventListener('input',()=>formError(''));
   $('clear-data').addEventListener('click',()=>{
