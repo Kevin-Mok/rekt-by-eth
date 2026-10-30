@@ -53,7 +53,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 .wallet{font-variant-numeric:tabular-nums;display:inline-flex;min-height:32px;align-items:center}.wallet-failed{color:var(--danger)}
 .chart-legend{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;margin:0 0 4px}.legend-swatch{width:10px;height:10px;border-radius:2px;background:var(--bar)}.legend-swatch.failed{margin-left:12px;background:var(--danger)}
 .chart-scroll{overflow:auto}.chart-scroll svg{display:block;width:100%;min-width:480px;height:auto;font-variant-numeric:tabular-nums}.chart-scroll svg.compact{min-width:0}.note{color:var(--muted);font-size:12px;margin:4px 0 0}
-.c-grid{stroke:var(--grid)}.c-bar{fill:var(--bar)}.c-failed{fill:var(--danger)}.c-star{fill:var(--danger)}.c-axis{fill:var(--muted)}
+.c-grid{stroke:var(--grid)}.c-bar{fill:var(--bar)}.c-failed{fill:var(--danger)}.c-star{fill:var(--danger)}.c-axis{fill:var(--muted)}.c-hit{fill:currentColor;fill-opacity:0;cursor:pointer}.c-active .c-hit{fill-opacity:.07}#chart-readout:empty{display:none}#chart-readout{font-size:14px;color:var(--text,inherit)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:480px){.ask{padding-top:40px}.menu summary{padding:0 12px}.menu .label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
@@ -87,7 +87,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <p id="count-row" class="count"><span id="count-line"></span><span id="failed-line" class="failed"></span></p>
 <div class="more">
 <div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
-<section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-note" class="note"></p>
+<section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-readout" class="note" aria-live="polite"></p><p id="chart-note" class="note"></p>
 <details class="plain"><summary>Monthly values</summary><div class="table-wrap"><table><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">USD</th><th scope="col">Failed USD</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
 <div id="details-row" class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="notes-detail" hidden></p><p id="exact-wei"></p><p id="failed-detail" hidden></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
 </div>
@@ -683,7 +683,7 @@ globalThis.Gas = (() => {
   }
   function cell(text) {const td=document.createElement('td');td.textContent=text;return td;}
   function chart(detail) {
-    current=detail;
+    current=detail;$('chart-readout').textContent='';
     const months=G.monthlyTotals(detail.rows,detail.unresolved),body=$('monthly-rows'),container=$('monthly-chart');body.replaceChildren();container.replaceChildren();
         $('chart-note').textContent=detail.total.missingCount?'* Some fees that month have no price.':'';
     for(const month of months) {
@@ -705,7 +705,8 @@ globalThis.Gas = (() => {
     months.forEach((month,index)=>{
       const x=pad+step*(index+.5),h=month.usdCents?Math.max(1,Number(month.usdCents*BigInt(height)/scale)):0,
         failed=month.failedUsdCents?Math.min(h,Math.max(1,Number(month.failedUsdCents*BigInt(height)/scale))):0;
-      const group=element('g');group.append(element('title',{},`${month.month}: ${G.formatUsd(month.usdCents)} priced; failed subset ${G.formatUsd(month.failedUsdCents)}; ${month.missingCount} unpriced transactions`));
+      const group=element('g',{'data-readout':`${new Date(month.month+'-01T00:00:00Z').toLocaleDateString('en-US',{month:'short',year:'numeric',timeZone:'UTC'})}: ${G.formatUsd(month.usdCents)}${month.failedCount?` · ${month.failedCount} failed (${G.formatUsd(month.failedUsdCents)})`:''}${month.missingCount?` · ${month.missingCount} unpriced`:''}`});group.append(element('title',{},`${month.month}: ${G.formatUsd(month.usdCents)} priced; failed subset ${G.formatUsd(month.failedUsdCents)}; ${month.missingCount} unpriced transactions`));
+      group.append(element('rect',{x:pad+step*index,y:bottom-height-12,width:step,height:height+12,class:'c-hit'}));
       if(h)group.append(element('rect',{x:x-width/2,y:bottom-h,width,height:h,rx:3,class:'c-bar'}));
       if(failed)group.append(element('rect',{x:x-width/2,y:bottom-failed,width,height:failed,class:'c-failed'}));
       if(month.missingCount)group.append(element('text',{x,y:bottom-h-8,'text-anchor':'middle',class:'c-star','font-size':starFont},'*'));
@@ -713,6 +714,7 @@ globalThis.Gas = (() => {
         new Date(month.month+'-01T00:00:00Z').toLocaleDateString('en-US',{month:'short',year:'2-digit',timeZone:'UTC'})));
       svg.append(group);
     });
+    svg.addEventListener('click',event=>{const g=event.target.closest('g[data-readout]');if(!g)return;svg.querySelectorAll('.c-active').forEach(n=>n.classList.remove('c-active'));g.classList.add('c-active');$('chart-readout').textContent=g.getAttribute('data-readout');});
     container.append(svg);
   }
   document.addEventListener('gas-results',event=>chart(event.detail));
