@@ -42,7 +42,7 @@ button:disabled{opacity:.55;cursor:wait}.quiet:hover{border-color:var(--field)}
 .hero #total-eth{display:contents}
 .hero .unit{order:1;font-size:clamp(22px,6.4vw,32px);font-weight:600;color:var(--muted);letter-spacing:0}
 .usd{display:block;font-size:28px;font-weight:600;margin-top:16px;font-variant-numeric:tabular-nums;letter-spacing:-.015em}#eth-label{display:block;font-size:14px;font-weight:400;color:var(--danger);margin-top:4px}.usd small{font-size:14px;font-weight:400;color:var(--danger);letter-spacing:0}
-.count{margin:8px 0 0;color:var(--muted);font-variant-numeric:tabular-nums}.count .failed{color:var(--danger)}
+.count{margin:8px 0 0;color:var(--muted);font-variant-numeric:tabular-nums}.count .failed{color:var(--danger);white-space:nowrap}
 .more{margin-top:48px;text-align:left;font-size:14px}.more>*+*{margin-top:24px}
 details.plain summary{cursor:pointer;min-height:44px;line-height:44px;display:list-item;color:var(--text)}
 #unverified-transactions{margin:4px 0;padding-left:18px;color:var(--muted);overflow-wrap:anywhere}details.plain p{margin:4px 0;color:var(--muted);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
@@ -89,7 +89,7 @@ td:last-child,th:last-child{text-align:right;padding-right:0}td small{display:bl
 <div id="breakdown" hidden><h2 class="small">By wallet</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Wallet breakdown"><table><thead><tr><th scope="col">Wallet</th><th scope="col">Sent</th><th scope="col">Failed</th><th scope="col">ETH</th><th scope="col">USD</th></tr></thead><tbody id="wallet-rows"></tbody></table></div></div>
 <section id="monthly" aria-labelledby="monthly-title"><h2 id="monthly-title" class="small">By month</h2><p class="chart-legend" aria-hidden="true"><span class="legend-swatch"></span>USD <span class="legend-swatch failed"></span>failed</p><div id="monthly-chart" class="chart-scroll" tabindex="0" role="region" aria-label="Monthly USD chart"></div><p id="chart-note" class="note"></p>
 <details class="plain"><summary>Monthly values</summary><div class="table-wrap"><table><thead><tr><th scope="col">UTC month</th><th scope="col">Sent</th><th scope="col">USD</th><th scope="col">Failed USD</th><th scope="col">Unpriced</th></tr></thead><tbody id="monthly-rows"></tbody></table></div></details></section>
-<div class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
+<div class="row"><details class="plain"><summary>Details</summary><p id="completeness"></p><p id="exact-wei"></p><p id="failed-detail" hidden></p><p id="as-of"></p><p id="usd-detail"></p><p id="receipt-line"></p><details id="receipt-details" class="plain" hidden><summary id="receipt-summary"></summary><ul id="unverified-transactions"></ul></details><details id="missing-details" class="plain" hidden><summary>Unpriced UTC days</summary><p id="missing-days"></p></details></details><button id="export-csv" class="quiet" type="button">Download CSV</button></div>
 </div>
 </section>
 </main>
@@ -593,7 +593,8 @@ globalThis.Gas = (() => {
     text('total-usd',G.formatUsd(total.usdCents));
     text('usd-detail',total.missingCount?`${total.missingCount} unpriced transactions across ${total.missingDays.length} UTC day${total.missingDays.length===1?'':'s'}`:
       total.provisionalCount?`${total.provisionalCount} transaction${total.provisionalCount===1?'':'s'} use today’s provisional close`:'USD at each UTC day’s close');
-    text('failed-line',total.failedCount?`, ${total.failedCount} failed (${G.formatEth(total.failedWei)} ETH, ${G.formatUsd(total.failedUsdCents)}${total.failedMissingCount?' priced':''})`:'');
+    text('failed-line',total.failedCount?`, ${total.failedCount} failed (${G.formatUsd(total.failedUsdCents)}${total.failedMissingCount?' priced':''})`:'');
+    text('failed-detail',total.failedCount?`Failed fees: ${G.formatEth(total.failedWei)} ETH, ${G.formatUsd(total.failedUsdCents)}`:'');$('failed-detail').hidden=!total.failedCount;
     const providers=[...new Set(rows.map(row=>new URL(row.receiptSource).hostname))];
     text('receipt-line',rows.length?`Fees read from Ethereum receipts${providers.length?' ('+providers.join(', ')+')':''}`:'');$('receipt-line').hidden=!rows.length;
     $('receipt-details').hidden=receiptsComplete;text('receipt-summary',`${unresolved.length} unverified transaction${unresolved.length===1?'':'s'}`);
